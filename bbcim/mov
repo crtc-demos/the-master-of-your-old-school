@@ -1,0 +1,3 @@
+# !/bin/sh
+mv bbcim /usr/local/bin/
+
