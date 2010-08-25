@@ -1,5 +1,7 @@
 set -x
 
+cd $(dirname "$0")
+
 BINS=`pwd`/bin
 
 if ! [ -d "$BINS" ]; then
@@ -30,13 +32,20 @@ if [ ! -x "$BINS/bbcim" ]; then
   cp bbcim/bbcim "$BINS"
 fi
 
+if [ ! -x "$BINS/pasta" ] || [ ! -x "$BINS/bbcim" ]; then
+  echo 'Missing binary for pasta or bbcim! Whoops.'
+  exit 1
+fi
+
 PATH="$BINS:$PATH"
-OUTPUTDISK="`pwd`/tmpdisk"
+OUTPUTDISK=$(readlink -f tmpdisk)
 
 rm -rf "$OUTPUTDISK"
 mkdir -p "$OUTPUTDISK"
 
 export OUTPUTDISK
+
+set -e
 
 pushd bbc-cube
 ./compile.sh
@@ -51,4 +60,6 @@ pushd crtc-logo
 popd
 
 bbcim -new demodisk.ssd
-bbcim -a demodisk.ssd tmpdisk/*
+pushd tmpdisk
+bbcim -a ../demodisk.ssd *
+popd
