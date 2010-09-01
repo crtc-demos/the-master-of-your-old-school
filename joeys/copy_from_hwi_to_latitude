@@ -1,0 +1,2 @@
+## Test: -n 
+rsync --delete -rt -v --partial joey@hwi.ath.cx:/home/joey/joey/projects/beeb/* ~/j/code/beeb/
