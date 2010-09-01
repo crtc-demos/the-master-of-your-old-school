@@ -189,8 +189,8 @@ no_hi
 	rts
 	.ctxend
 
-	.include "mos.s"
-	.include "load.s"
+	.include "../lib/mos.s"
+	.include "../lib/load.s"
 	
 blank_rle:
 	.asc "blkrle",13

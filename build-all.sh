@@ -59,6 +59,10 @@ pushd crtc-logo
 ./compile.sh
 popd
 
+pushd vgmplayer
+./compile.sh
+popd
+
 bbcim -new demodisk.ssd
 pushd tmpdisk
 bbcim -a ../demodisk.ssd *
