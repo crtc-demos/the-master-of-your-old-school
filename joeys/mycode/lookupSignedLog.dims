@@ -1,0 +1,19 @@
+; Actually it looks up the log of the absolute value of the signed byte index.
+; So sign is not handled, but discarded.  It should be re-added by the
+; developer after unlogging.
+
+; DIM lookupSignedLog 256
+; DIM lookupUnlog 256
+lookupSignedLog = &E00
+lookupUnlog = &F00
+lnonetwonine = LN(129)
+FOR i%=0 TO 255
+	IF i%>=128 THEN positive_i%=256-i% ELSE positive_i%=i%
+	lookupSignedLog?i% = 255 * LN(1+positive_i%) / lnonetwonine
+	lookupUnlog?i% = EXP(lnonetwonine*(i%/255))
+	; I thought unlog needed -1 but it seems we only need that when i%==0 or 128.
+	; I guess rounding issues keep the rest lower than they should be.
+	IF i%=0 THEN lookupUnlog?i%=0       ; Fix the exceptions
+	IF i%=128 THEN lookupUnlog?i%=127   ; Fix the exceptions
+NEXT i%
+

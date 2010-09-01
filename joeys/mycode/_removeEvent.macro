@@ -1,0 +1,4 @@
+
+;;; WARNING: This file was auto-generated.  Changes will be lost!  Edit _removeEvent.jpp instead. ;;;
+
+#define _removeEvent(_eventNum, _vector, _oldVector, _call) LDA _oldVector : STA _vector : LDA _oldVector+1 : STA _vector+1 : 

@@ -1,0 +1,49 @@
+; @expects _eventNum, _vector, _oldVector, _call
+; e.g.: _interceptEvent(&220,&70,oldEvent,myEvent)
+; oldVector is a two-byte memory location used to store the original event vector
+
+LOAD_LABEL(interceptEvent)
+LOAD_LABEL(interceptEventOut)
+LOAD_LABEL(interceptEventDoneInit)
+
+LDA _vector        ; redirect the event vector
+STA _oldVector
+LDA _vector+1
+STA _oldVector+1
+LDA _HASH interceptEvent MOD 256
+STA _vector
+LDA _HASH interceptEvent DIV 256
+STA _vector+1
+; Skip the intercept code, so outer code can continue linear execution.
+JMP interceptEventDoneInit
+
+.interceptEvent
+PHP ; save registers;   Often not needed but *should* be preserved
+; AND _HASH _eventNum
+CMP _HASH _eventNum
+BNE interceptEventOut
+; LDA &FC
+; PHA
+TXA : PHA
+; TYA : PHA
+JSR _call
+; .leaveEvent
+; PLA : TAY
+PLA : TAX
+; PLA
+LDA _HASH _eventNum
+; STA &FC
+.interceptEventOut
+PLP
+JMP (_oldVector)
+; RTS
+
+.interceptEventDoneInit
+
+SAVE_LABEL(interceptEvent)
+SAVE_LABEL(interceptEventOut)
+SAVE_LABEL(interceptEventDoneInit)
+
+;; It is likely the calling code will want to do:
+; LDA #14 : LDX _HASH _eventNum : JSR &FFF4
+

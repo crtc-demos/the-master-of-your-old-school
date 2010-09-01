@@ -1,0 +1,4 @@
+
+;;; WARNING: This file was auto-generated.  Changes will be lost!  Edit _divide8to8.jpp instead. ;;;
+
+#define _divide8to8(numA,numB) LOAD_LABEL(loop) : LOAD_LABEL(skip1) : REM numA / numB -> numA (rem numA) : REM numA destroyed!  numB unharmed : .divide8 : LDA _HASH 0 : LDX _HASH 8 : ASL numA : .loop : ROL A : CMP numB : BCC skip1 : SBC numB : .skip1 : ROL numA : DEX : BNE loop : REM : SAVE_LABEL(loop) : SAVE_LABEL(skip1) : 

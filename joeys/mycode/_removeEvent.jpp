@@ -1,0 +1,14 @@
+; @expects _eventNum, _vector, _oldVector, _call
+; e.g.: _removeEvent(&220,&70,oldEvent,myEvent)
+; oldVector is a two-byte memory location used to store the original event vector
+
+;; Caller, do this first!
+; LDA #13 : LDX _HASH _eventNum : JSR &FFF4
+
+;; We could check that ?vector == ?myEvent
+
+LDA _oldVector
+STA _vector
+LDA _oldVector+1
+STA _vector+1
+

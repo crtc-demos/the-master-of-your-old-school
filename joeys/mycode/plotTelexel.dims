@@ -1,0 +1,108 @@
+; @related plotTelexel.asm
+; @outputs bits, div3Lookup, mod3Lookup, (oldData, oldDataEnd)
+; @optional PLOT_TELEXEL_SAVE_OLD, OLDDATA_SUPERFAST
+
+; Optionally PLOT_TELEXEL_SAVE_OLD will store all plotted telexels and start clearing
+; them after trailLen%*3.
+; You will need to initialize oldIndex with:
+;   LDA #oldData MOD 256 : STA oldIndexLO
+;   LDA #oldData DIV 256 : STA oldIndexHI
+
+; OLDDATA_SUPERFAST requires that we are doing PLOT_TELEXEL_SAVE_OLD with trailLen%<=256.
+; Despite its name, it does not appear to be significantly faster!  :P
+
+; Old scheme:
+; #define TELEXEL_LOOKUP_DIV3S
+; New scheme (faster: 16fps rather than 12):
+#define TELEXEL_LOOKUP_YLOCS
+#define TELEXEL_LOOKUP_MASKS
+
+
+
+#ifndef SCRTOP
+	#define SCRTOP &7C00
+#endif
+
+
+
+#ifdef TELEXEL_LOOKUP_DIV3S
+
+  DIM div3Lookup 75
+  DIM mod3Lookup 75
+  FOR i%=0 TO 74 : div3Lookup?i% = i%DIV3 : mod3Lookup?i% = i%MOD3 : NEXT i%
+
+#endif
+
+#ifdef TELEXEL_LOOKUP_YLOCS
+
+  DIM lookupYlocsLO 75
+  DIM lookupYlocsHI 75
+  FOR y%=0 TO 74 : plotLoc%=SCRTOP+40*(y% DIV 3) : lookupYlocsLO?y%=plotLoc% MOD 256 : lookupYlocsHI?y%=plotLoc% DIV 256 : NEXT
+
+#endif
+
+#ifdef TELEXEL_LOOKUP_MASKS
+
+  DIM telexMaskX 80
+  DIM telexMaskY 75
+
+  FOR x%=0 TO 79
+    IF x% MOD 2 = 0 THEN telexMaskX?x% = 1 + 4 + 16
+    IF x% MOD 2 = 1 THEN telexMaskX?x% = 2 + 8 + 64
+  NEXT
+
+  FOR y%=0 TO 74
+    IF y% MOD 3 = 0 THEN telexMaskY?y% = 1 + 2
+    IF y% MOD 3 = 1 THEN telexMaskY?y% = 4 + 8
+    IF y% MOD 3 = 2 THEN telexMaskY?y% = 16 + 64
+  NEXT
+
+#else
+
+  DIM bits 6         : REM top-bottom: L,R,L,R,L,R
+  bits?0 = 1
+  bits?1 = 2
+  bits?2 = 4
+  bits?3 = 8
+  bits?4 = 16
+  bits?5 = 64
+
+#endif
+
+#ifdef PLOT_TELEXEL_SAVE_OLD
+
+  #ifdef OLDDATA_SUPERFAST
+
+    ; trailLen% must be <= 256!
+
+    ; This very dirtily takes over use of oldIndexLO and oldData
+    #define oldIndex oldIndexLO
+    #define oldData 0
+
+    DIM oldPlotBits trailLen%
+    DIM oldPlotLocLO trailLen%
+    DIM oldPlotLocHI trailLen%
+
+    #ifdef UNPLOT_TELEXEL_INCREMENTALLY
+      ; Point the initial data somewhere harmless so we won't break anything when we clear it.
+      FOR i%=0 TO trailLen%-1
+        oldPlotBits?i%=0 : oldPlotLocLO?i%=&FF : oldPlotLocHI?i%=&7F
+      NEXT i%
+    #endif
+
+  #else
+
+    DIM oldData trailLen%*3
+    oldDataEnd = oldData + trailLen%*3
+
+    #ifdef UNPLOT_TELEXEL_INCREMENTALLY
+      ; Point the initial data somewhere harmless so we won't break anything when we clear it.
+      FOR i%=0 TO trailLen%-1
+        oldData?(i%*3)=0 : oldData?(i%*3+1)=&FF : oldData?(i%*3+2)=&7F
+      NEXT i%
+    #endif
+
+  #endif
+
+#endif
+

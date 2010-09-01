@@ -1,0 +1,52 @@
+;; TODO: See mult8.asm for efficiency hack
+
+; @expects numA,numB,cHI,cLO
+
+; numA must be a mem location, and gets fragged.
+; numB can be a #value or mem location/reference
+; numA can be the same mem location as cLO but not cHI
+; cHI and numA are acted on during the procedure
+
+; NEW_LABELS(3)
+
+LOAD_LABEL(loop)
+LOAD_LABEL(skip1)
+LOAD_LABEL(skip2)
+
+; .multiply8to16
+; Input: numA and numB are the two 8-bit numbers to multiply
+; Output: Result placed in cLO/HI, also A=cLO redundantly.
+; Warning: numA gets fragged, but it can safely be cLO.
+; Also: X becomes 0, Y is unaffected.
+LDA _HASH 0
+STA cHI
+LDX _HASH 8
+.loop
+  CLC
+  ROL cHI
+  ; cHI can't overflow so this isn't needed: CLC
+  ROL A
+  BCC skip1
+    CLC
+    INC cHI
+  .skip1
+  ROL numA
+  BCC skip2
+    CLC
+    ADC numB
+  BCC skip2
+    INC cHI
+  .skip2
+  DEX
+BNE loop
+; BUG: Many callers to this function discard cLO.
+;      Therefore this final command need not be here.
+;      But a few callers might be using it!
+;      I guess we should drop cLO entirely and make the function even more complicated.
+;      Hmm maybe call it mult8by8div256withremainder
+STA cLO
+; RTS
+
+SAVE_LABEL(loop)
+SAVE_LABEL(skip1)
+SAVE_LABEL(skip2)

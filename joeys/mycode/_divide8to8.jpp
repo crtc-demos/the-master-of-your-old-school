@@ -1,0 +1,29 @@
+; @expects numA,numB
+; numA must be a mem location, and gets fragged.
+; numB can be a #value or mem location/reference
+; numA,A and X are changed during the procedure
+; numB and Y remain unchanged
+
+LOAD_LABEL(loop)
+LOAD_LABEL(skip1)
+
+REM numA / numB -> numA (rem numA)
+REM numA destroyed!  numB unharmed
+.divide8
+LDA _HASH 0
+LDX _HASH 8
+ASL numA
+.loop
+ROL A
+CMP numB
+BCC skip1
+SBC numB
+.skip1
+ROL numA
+DEX
+BNE loop
+REM ; result is in numA, remainder in A
+
+SAVE_LABEL(loop)
+SAVE_LABEL(skip1)
+

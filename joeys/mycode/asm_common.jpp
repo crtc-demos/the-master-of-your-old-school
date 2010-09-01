@@ -1,0 +1,63 @@
+;;; Library of useful assembly macros
+;; vim: ft=basic
+
+;; Input: a,b   Output: c <- a+b, A=cHI, X and Y unaffected
+#define _add16(aHI,aLO,bHI,bLO,cHI,cLO) CLC : LDA aLO : ADC bLO : STA cLO : LDA aHI : ADC bHI : STA cHI
+;; Inputs and outputs can be #s &s or variables, but probably not (,X)s ord (),Ys due to macros.  Outputs can safely be inputs.
+
+
+;; Support for more complex macros
+;; Including local variable names!
+;; Should be factored into a common lib, so other modules can source it.
+;; Note that the variables are local to each macro, but if used elsewhere
+;; without this localisation trick, will be overwritten!
+
+#define _HASH #0+
+; #define _HASH_ZERO #0
+; #define _HASH_EIGHT #8
+
+#include "asm_labelarray.jpp"
+
+;; The complex macros:
+
+#include "_INCdouble.macro"
+#include "_ADCdouble.macro"
+
+;; This needn't be a macro - it could just be a #included when wanted.
+;; It does accept arguments, but it is rarely used more than once.
+#include "_interceptEvent.macro"
+#include "_removeEvent.macro"
+
+#include "_multiply8to16.macro"
+#include "_multiply16to16.macro"
+
+#include "_divide8to8.macro"
+
+#include "_rotate2d.macro"
+
+
+
+
+; #include "simple_memory_allocation.jpp"
+
+
+; OSRDCH: write character in A (like VDU)
+#define OSRDCH &FFE0
+; OSASCI: get character from keyboard into A
+#define OSASCI &FFE3
+#define OSWORD &FFF1
+
+#define OUTPUT_BUFFER_EMPTY_EVENT 0
+#define SOUND_CHANNEL_0_BUFFER_EMPTIED 4
+
+#define _print(str) JMP &1234 : .rawprintjump1 : ] : $P%=str : P%=P%+LEN(str)+1 : rawprintjump1?-2=P%MOD256 : rawprintjump1?-1=P%DIV256 : [OPT I% : LDY _HASH 0 : .rawprintloop1 : LDA rawprintjump1,Y : JSR OSASCI : INY : CMP _HASH &0D : BNE rawprintloop1
+
+; #define _print(str) _rawrprint(str)
+; #define _print(str) _safeprint(str)
+
+
+
+
+#define _repeat(X,N) ] : FOR i%=0 TO (N)-1 : [OPT I% : X : ] : NEXT i% : [OPT I%
+
+

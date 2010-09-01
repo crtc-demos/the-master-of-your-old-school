@@ -1,0 +1,47 @@
+; NOTE: The lookup data should either be loaded from
+; disc, or generated using lookupLogs2.calc
+
+;  dx =  amp * sin(a)
+;     =  unlog(  log(amp) + log(sin(a))  )
+;     =  unlog(  lookup_log(amp) + lookup_log_of_sin(a)  )
+; range of log(0..255) is [0,5.6]
+; range of log(abs(sin(0..2PI))) is [-inf,0] but can be used as [-5.6,0]
+;          plot [0:255] exp(x/22.8-5.6), 2*22.8*(5.6+log(abs(sin(x*2*pi/256)))), 2*22.8*log(x)
+
+; OLD: so what we input to lookupUnlog2 is a number 0..255 but it represents -5.6 to +5.6
+; aka log(1/256) to log(256)
+; Better than RORing for the lookupUnlog2, we should just SBC 256.
+; Since the first 128 of the old result (256 before the ROR) was all 0, we can
+; drop these off the left.
+
+; Scales from range -5.6 to +5.6 into 0 to 255, and back again.
+; #define SCALE_TO_BYTE_NOFIX(X) (((X)+5.6)*22.857)
+#define SCALE_TO_BYTE(X) FNchop(0,255,((X)+5.6)*22.857)
+#define SCALE_FROM_BYTE(X) ((X)/22.857-5.6)
+
+#define SCALE_ANG_TO_BYTE(X) ((X)*256/2/PI)
+#define SCALE_BYTE_TO_ANG(X) ((X)*2*PI/256)
+
+DIM lookupLog 1024
+; Input represents 0-255
+; Output represents range 0 to 5.6
+
+lookupUnlog2 = lookupLog + 256
+; Input is sum of the two above, RORed.  (Actually maybe not RORed.  But if carry bit was not set, answer=0 and you should not use lookup!)
+; (Would have been range 0-510 but we expect 0-255 representing -5.6 to +5.6.)
+; Output represents 0-255
+
+lookupLogOfSin = lookupUnlog2 + 256
+; Input represents 0-2*PI
+; Output represents range -5 to 0
+
+; Split by quadrant
+; DIM sinCharge 4
+; sinCharge?0=+1
+; sinCharge?1=+1
+; sinCharge?2=-1   ; aka 255
+; sinCharge?3=-1   ; aka 255
+; DIM sinCharge 256
+sinCharge = lookupLogOfSin + 256
+; #define cosCharge%(X) sinCharge?((X)+64)MOD4)
+

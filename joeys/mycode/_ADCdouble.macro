@@ -1,0 +1,4 @@
+
+;;; WARNING: This file was auto-generated.  Changes will be lost!  Edit _ADCdouble.jpp instead. ;;;
+
+#define _ADCdouble(wordLO,num) LOAD_LABEL(skipADCdouble) :   LDA wordLO : CLC : ADC num : STA wordLO :   BCC skipADCdouble : INC wordLO+1 : .skipADCdouble : SAVE_LABEL(skipADCdouble) : 

@@ -1,0 +1,4 @@
+
+;;; WARNING: This file was auto-generated.  Changes will be lost!  Edit _INCdouble.jpp instead. ;;;
+
+#define _INCdouble(wordLO) LOAD_LABEL(skipINCdouble) :   INC wordLO : BNE skipINCdouble :   INC wordLO+1 : .skipINCdouble : SAVE_LABEL(skipINCdouble) : 

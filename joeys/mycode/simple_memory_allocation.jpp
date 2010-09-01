@@ -1,0 +1,12 @@
+
+; #define ALLOCATE_ZEROPAGE_BYTE(varname) ] : varname=zeroPageTop% : zeroPageTop%=zeroPageTop%+1 : PRINT "varname assigned to ";(~varname) : [OPT I%
+; ALLOCATE_ZEROPAGE_WORD
+; ALLOCATE_BYTE, ALLOCATE_WORD, ALLOCATE_MEM(numBytes%)
+; These are for use once per assembly loop, not realtime ;p
+; @todo We may want to de-allocate zeropage bytes when we have stopped using
+; them, but this would require more advanced tracking.  And it may be confusing
+; for the developer, since it would work relative to assembly flow rather than
+; runtime flow.
+
+; #define RESERVE_ZEROPAGE_BYTE(varname) ] : varname=zeroPageTop% : zeroPageTop%=zeroPageTop%+1 : PRINT "varname assigned to ";(~varname) : [OPT I%
+

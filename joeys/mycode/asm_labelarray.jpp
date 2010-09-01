@@ -1,0 +1,19 @@
+;; This allows label names to be reused locally throughout the final assembly
+;; code, without overlapping.
+;; This way, different blocks of asm which re-use label names may be used
+;; together, or repeated blocks of asm code may be inserted inline multiple
+;; times.
+;; Local commonly-named labels must be declared before and after their
+;; appearance, using LOAD_LABEL and SAVE_LABEL, to define their scope.
+;; In fact this is only really needed when referencing labels which appear
+;; later in the code.  Labels which were defined before the current line will
+;; be correct at compile time.
+DIM _LA%(64)
+; _resetLabelCounters should be called at the start of each pass
+#define _resetLabelCounters _Ls%=0 : _SLs%=0
+; #define NEW_LABEL NEW_LABELS(1)
+; #define NEW_LABELS(NUM) ] : _Ls% = _Ls% + NUM : [OPT I%
+; #define LABEL(NUM) _LA%(_Ls%-NUM)
+#define LOAD_LABEL(labelLocationVariable) ] : labelLocationVariable=_LA%(_Ls%):_Ls%=_Ls%+1 : [OPT I%
+#define SAVE_LABEL(labelLocationVariable) ] : _LA%(_SLs%)=labelLocationVariable:_SLs%=_SLs%+1 : [OPT I%
+

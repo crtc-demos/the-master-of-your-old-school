@@ -1,0 +1,46 @@
+DIM sinLookup 256
+
+; sinLookup[0-255] input<0to2pi output<0.0-1.0
+; the output is not signed, you must apply +/- yourself.  the sign is the top bit of your input byte.
+
+; sinSgnLookup
+
+; TODO 20091004 - Some of my earlier sin lookup techniques perform EOR #255 to
+; create negative numbers.  I fear that -1 EOR 255 is more accurate, and should
+; be replaced globally.  (The error: well currently -0 is actually being
+; calculated as -1.)
+; OK so now we are recommending to SBC sinSgnLookupDelta before EORing with sinSgnLookup
+; BUT WOULDN'T it make more sense to EOR and then INC (or ADC if preferred) - saving time?  :P
+; bfhskgs INC #0 INC #1 don't exist :P it's either INC val or NOP
+
+FOR i%=0 TO 255
+  sinLookup?i% = 255*ABS(SIN(i%*2*PI/256))
+NEXT
+
+#ifdef ASSEMBLY
+
+  DIM sinSgnLookup 4
+  sinSgnLookup?0=0
+  sinSgnLookup?1=0
+  sinSgnLookup?2=255
+  sinSgnLookup?3=255
+
+  DIM sinSgnLookupDelta 4
+  sinSgnLookupDelta?0=0
+  sinSgnLookupDelta?1=0
+  sinSgnLookupDelta?2=1
+  sinSgnLookupDelta?3=1
+
+#else ; BASIC
+
+  DIM sinSgnLookup%(3)
+  sinSgnLookup%(0)=+1
+  sinSgnLookup%(1)=+1
+  sinSgnLookup%(2)=-1
+  sinSgnLookup%(3)=-1
+
+  #define LOOKUP_SIN(X) ( sinSgnLookup%((X) DIV 64) * sinLookup?(X) / 255 )
+  #define LOOKUP_COS(X) LOOKUP_SIN( ((X)+64) MOD 256 )
+
+#endif
+

@@ -1,0 +1,5 @@
+; @expects wordLO
+LOAD_LABEL(skipINCdouble)
+  INC wordLO : BNE skipINCdouble
+  INC wordLO+1 : .skipINCdouble
+SAVE_LABEL(skipINCdouble)

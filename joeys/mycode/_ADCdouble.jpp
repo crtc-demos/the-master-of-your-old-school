@@ -1,0 +1,5 @@
+; @expects wordLO,num
+LOAD_LABEL(skipADCdouble)
+  LDA wordLO : CLC : ADC num : STA wordLO
+  BCC skipADCdouble : INC wordLO+1 : .skipADCdouble
+SAVE_LABEL(skipADCdouble)
