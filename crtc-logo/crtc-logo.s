@@ -1,6 +1,6 @@
 	.temps $70..$8f
 
-	.org $e00
+	.org $1200
 
 entry:
 	lda #0
@@ -221,11 +221,6 @@ init_irq:
 	
 	sei
 
-        ; Sys VIA CA1 interrupt on positive edge
-        lda SYS_PCR
-        ora #$1
-        sta SYS_PCR
-
 	lda #<irq1
 	sta $204
 	lda #>irq1
@@ -235,6 +230,11 @@ init_irq:
 	sta USR_T1L_L
 	lda fliptime + 1
 	sta USR_T1L_H
+	
+	lda fliptime
+	sta USR_T1C_L
+	lda fliptime + 1
+	sta USR_T1C_H
 
 	; Generate stream of interrupts
 	lda USR_ACR
