@@ -87,6 +87,8 @@ DEF PROCassemble
   [OPT I%
 
   .init
+    LDA #22 : JSR OSASCI
+    LDA #7 : JSR OSASCI
     LDA #192 : STA rotation
     LDA #0 : STA counterA
     _interceptEvent(4,&220,oldEvent,event)
@@ -307,9 +309,9 @@ DEF PROCassemble
   RTS
 
   ]
-  PRINT "Code starts at ";code;" and has length ";(P%-code)
   NEXT I%
 
+  PRINT "init is at &";~init;" and stop is at &";~stop
   OSCLI "SAVE O.ROTA "+STR$~init+" "+STR$~P%+" "+STR$~init+" "+STR$~init
 
 ENDPROC

@@ -199,6 +199,8 @@ DEF PROCassemble
   JMP (oldEvent)
   ]
   NEXT I%
+  PRINT "init is at &";~init;" and stop is at &";~stop
+  OSCLI "SAVE O.SIERPA "+STR$~code+" "+STR$~P%+" "+STR$~init+" "+STR$~init
 ENDPROC
 
 #endif
