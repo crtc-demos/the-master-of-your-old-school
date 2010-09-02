@@ -7,6 +7,9 @@ entry:
 	jsr mos_setmode
 	jsr mos_cursoroff
 	
+	jsr player_init
+	jsr player_vsync_event_enable
+	
 	jsr init_irq
 	
 	@load_file_to blank_rle, end_of_program
@@ -91,17 +94,7 @@ lots_of_times:
 
 wait_a_while:
 	.(
-	ldy #255
-yloop
-	ldx #255
-xloop
-	nop
-	nop
-	nop
-	dex
-	bne xloop
-	dey
-	bne yloop
+	; do something sensible
 	rts
 	.)
 
@@ -192,6 +185,8 @@ no_hi
 
 	.include "../lib/mos.s"
 	.include "../lib/load.s"
+	.include "../lib/sram.s"
+	.include "../lib/player.s"
 	
 blank_rle:
 	.asc "blkrle",13
