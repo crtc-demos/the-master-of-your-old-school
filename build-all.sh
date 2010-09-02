@@ -40,8 +40,10 @@ fi
 PATH="$BINS:$PATH"
 OUTPUTDISK=$(readlink -f tmpdisk)
 
-rm -rf "$OUTPUTDISK"
 mkdir -p "$OUTPUTDISK"
+pushd "$OUTPUTDISK"
+rm -f *
+popd
 
 export OUTPUTDISK
 
