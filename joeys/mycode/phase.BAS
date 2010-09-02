@@ -1,8 +1,12 @@
 REM vim: ft=basic
 
-> *BASIC
+; > *BASIC
 
 ; > HIMEM=&4800
+>PAGE=&3800
+>NEW
+; >LOMEM=&5000
+; >PRINT ~HIMEM
 
 ; Todo consider: We need resolution 80 right.  So let's double it to 160, and
 ; aim to use the *middle* 160 of the range, to avoid the poor res at the ends.
@@ -99,20 +103,20 @@ numWaves% = 3
 	angleStep%=5   ; with 4 the framerate dropped, with 5 occasionally lines are visible
 #endif
 
-#ifdef BASIC_USE_LOGS
-DIM logwaveXamp% numWaves%
-DIM logwaveYamp% numWaves%
-#else
-DIM waveXamp(numWaves%),waveYamp(numWaves%)
-#endif
-DIM waveXphase% numWaves%
-DIM waveYphase% numWaves%
-DIM wavefreq% numWaves%
-DIM wavefreqMultCache% numWaves%
-DIM rotateCounterX numWaves%
-DIM rotateCounterY numWaves%
-DIM rotateCounterMaxX numWaves%
-DIM rotateCounterMaxY numWaves%
+; #ifdef BASIC_USE_LOGS
+; DIM logwaveXamp% numWaves%
+; DIM logwaveYamp% numWaves%
+; #else
+; DIM waveXamp(numWaves%),waveYamp(numWaves%)
+; #endif
+; DIM waveXphase% numWaves%
+; DIM waveYphase% numWaves%
+; DIM wavefreq% numWaves%
+; DIM wavefreqMultCache% numWaves%
+; DIM rotateCounterX numWaves%
+; DIM rotateCounterY numWaves%
+; DIM rotateCounterMaxX numWaves%
+; DIM rotateCounterMaxY numWaves%
 
 
 
@@ -138,14 +142,20 @@ CLS
 	PRINT
 	ON ERROR REPORT:PRINT " at line ";ERL:END
 
-PROCinitWaves
-
 #ifdef ASSEMBLY
 
 	#include "asm_common.jpp"
 
 	PRINT "Assembling"
 	PROCassemble
+
+	PROCinitWaves
+
+  OSCLI "SAVE O.PHASE "+STR$~code+" "+STR$~P%+" "+STR$~init+" "+STR$~init
+
+  OSCLI "SPOOL I.PHASE"
+  PRINT "start=&";~code;" end=&";~P%;" init=&";~init;" and stop=&";~stop
+  OSCLI "CLOSE"
 
 	CLS
 	; FOR line%=0 TO 23 : PRINTTAB(0,i%);CHR$(148);STRING$(39,CHR$(160)); : NEXT line%
@@ -160,7 +170,7 @@ PROCinitWaves
 	; PROCprepareScreen(2)
 
 	startTime=TIME - 1   ; avoid /0 !
-	!(framecounter)=0
+	; !(framecounter)=0
 	CALL init
 	; *FX 14,4
 	; CALL start
@@ -322,8 +332,8 @@ DEF FNchop(low,hi,val)
 
 DEF PROCassemble
 	:
-	DIM code 2400
-	; code=&4D00
+	; DIM code 2400
+	code=&1B00
 	; code=HIMEM
 	:
 	rotationSlowdown% = 1   ; 0 means 256
@@ -349,7 +359,10 @@ DEF PROCassemble
 	;; running during the next vsync, which might show uglies with some methods.
 	; #define LOOP_IN_FOREGROUND
 	:
-	#include "plotTelexel.dims"
+	; #include "plotTelexel.dims.OLD"
+	#ifdef DRAW_LINE_WITH_BRESENHAM
+	firstTimeRound=&80
+	#endif
 	oldIndexLO=&81
 	oldIndexHI=&82
 	dotx=&83 : doty=&84
@@ -357,20 +370,20 @@ DEF PROCassemble
 	bitx=&87 : bity=&88
 	plotLoc=&89 : REM and &8A
 	plotBit=&8B
-	; lastx=&8C : lasty=&8D
+	lastx=&8C : lasty=&8D
 	#ifdef PLOT_DOTS
 		#define x dotx
 		#define y doty
 	#else
 		; DRAW_LINE_WITH_BRESENHAM
-		x=&8C : y=&8D
+		x=&70 : y=&71
 	#endif
 	:
-	numWaves=&80
+	; numWaves=&80
+	; ?numWaves = numWaves%
 	; tx=&8C : ty=&8D   ; I was just using these for testing
 	#define tx dotx
 	#define ty doty
-	?numWaves = numWaves%
 	:
 	oldEvent=&72 : REM and &73
 	x_dist=&74
@@ -396,6 +409,9 @@ DEF PROCassemble
 	LDA #7 : JSR OSASCI
 	; LDX #0 : STX rotation
 	; LDA #1 : STA rotateCounterA : STA rotateCounterB : STA rotateCounterC
+	LDA #0
+	STA framecounter : STA framecounter+1
+	STA framecounter+2 : STA framecounter+3
 	#ifndef DOUBLE_BUFFER
 		LDA #oldData MOD 256 : STA oldIndexLO
 		LDA #oldData DIV 256 : STA oldIndexHI
@@ -414,11 +430,29 @@ RTS
   _removeEvent(4,&220,oldEvent,event)
 RTS
 
-.lastx EQUB &00
-.lasty EQUB &00
-#ifdef DRAW_LINE_WITH_BRESENHAM
-.firstTimeRound EQUB 123
-#endif
+]
+
+logwaveXamp%=P% : P%=P%+numWaves%
+logwaveYamp%=P% : P%=P%+numWaves%
+waveXphase%=P% : P%=P%+numWaves%
+waveYphase%=P% : P%=P%+numWaves%
+wavefreq%=P% : P%=P%+numWaves%
+wavefreqMultCache%=P% : P%=P%+numWaves%
+rotateCounterX=P% : P%=P%+numWaves%
+rotateCounterY=P% : P%=P%+numWaves%
+rotateCounterMaxX=P% : P%=P%+numWaves%
+rotateCounterMaxY=P% : P%=P%+numWaves%
+
+#include "plotTelexel.dims"
+
+[OPT I%
+
+; DONE: put these back in ZP for speed
+; .lastx EQUB &00
+; .lasty EQUB &00
+; #ifdef DRAW_LINE_WITH_BRESENHAM
+; .firstTimeRound EQUB 123
+; #endif
 
 .event
 
@@ -430,6 +464,24 @@ RTS
 	#endif
 
 .start
+
+	#ifdef DOUBLE_BUFFER
+		; Blit the offscreen buffer to the screen
+		LDA #scrbuffer% MOD 256 : STA srcLoc
+		LDA #scrbuffer% DIV 256 : STA srcLoc+1
+		LDA #&00 : STA plotLoc
+		LDA #&7C : STA plotLoc+1
+		LDX #3
+		.blitloop1
+			LDY #0
+			.blitloop2
+				LDA (srcLoc),Y
+				STA (plotLoc),Y
+			INY : BNE blitloop2
+			INC srcLoc+1
+			INC plotLoc+1
+		DEX : BPL blitloop1
+	#endif
 
 	#ifndef UNPLOT_TELEXEL_INCREMENTALLY
 	#ifndef DOUBLE_BUFFER
@@ -466,7 +518,7 @@ RTS
 	#endif
 
 	LDA #0
-	LDY numWaves : DEY
+	LDY #numWaves% : DEY
 	.clearCacheLoop
 		STA wavefreqMultCache%,Y
 	DEY : BPL clearCacheLoop
@@ -477,7 +529,7 @@ RTS
 			LDA angle : AND #dashLength%*2-1 : CMP #0 : BNE skipAngleStep
 				LDA angle : CLC : ADC #dashLength% : STA angle
 				; Update the wave caches
-				LDY numWaves : DEY
+				LDY #numWaves% : DEY
 				.updateCacheLoop
 					LDA wavefreqMultCache%,Y
 						;; Update the cached wavefreqs dashLength-angleStep% times (because
@@ -497,7 +549,7 @@ RTS
 			.skipAngleStep
 		#endif
 
-		LDY numWaves : DEY
+		LDY #numWaves% : DEY
 		.updateCacheLoop
 			; These numbers could be further cached inside a lookup table of size 256 per wave(freq).
 			LDA wavefreqMultCache%,Y
@@ -518,7 +570,7 @@ RTS
 		#endif
 
 		LDA #0 : STA tx : STA ty
-		LDY numWaves : DEY
+		LDY #numWaves% : DEY
 		.loopWaves
 			.getdeltax
 				; work out the angle for this wave, angle + frame, (no need to chop it :D)
@@ -692,24 +744,6 @@ RTS
 
 	LDA #0 : STA angle
 
-	#ifdef DOUBLE_BUFFER
-		; Blit the offscreen buffer to the screen
-		LDA #scrbuffer% MOD 256 : STA srcLoc
-		LDA #scrbuffer% DIV 256 : STA srcLoc+1
-		LDA #&00 : STA plotLoc
-		LDA #&7C : STA plotLoc+1
-		LDX #3
-		.blitloop1
-			LDY #0
-			.blitloop2
-				LDA (srcLoc),Y
-				STA (plotLoc),Y
-			INY : BNE blitloop2
-			INC srcLoc+1
-			INC plotLoc+1
-		DEX : BPL blitloop1
-	#endif
-
 	; LDA &FE64 : EOR &FE65 : CMP #255 : BNE noSpecial
 	LDA framecounter : AND #127
 	CMP #0 : BNE noSpecial
@@ -754,7 +788,7 @@ RTS
 			; LDA #2 : .rotateCounterDLoc : STA rotateCounterD
 		; .noRotateD
 
-		LDX numWaves : DEX
+		LDX #numWaves% : DEX
 		.rotateLoop
 			; DEC rotateCounterX,X : BNE noRotateX
 				; INC waveXphase%,X
@@ -817,7 +851,7 @@ RTS
 	; MaybeInvert(wavefreq%)
 	; MaybeInvert(wavefreq%+1)
 	; MaybeInvert(wavefreq%+2)
-	LDX numWaves : DEX
+	LDX #numWaves% : DEX
 	.maybeInvertLoop
 		; GetRandom() : ROL A : BCS miNeg
 		; .miPos : LDA #0 : JMP miDone
@@ -844,7 +878,7 @@ RTS
 		; GetRandom() : STA waveYphase%,X
 	; DEX : BPL createNewValuesLoop2
 	;; Change speeds
-	LDX numWaves : DEX
+	LDX #numWaves% : DEX
 	.createNewValuesLoop1
 		; GetRandom() : AND #7 : CLC : ADC #3 : STA rotateCounterMaxX,X
 		; GetRandom() : AND #7 : CLC : ADC #3 : STA rotateCounterMaxY,X
@@ -876,12 +910,6 @@ RTS
 	; PRINT "?ydir=";~?ydir
 	; k$=GET$
 
-  OSCLI "SAVE O.PHASE "+STR$~code+" "+STR$~P%+" "+STR$~init+" "+STR$~init
-
-  OSCLI "SPOOL I.PHASE"
-  PRINT "start=&";~code;" end=&";~P%;" init=&";~init;" and stop=&";~stop
-  OSCLI "CLOSE"
-
 ENDPROC
 
 #endif
@@ -892,4 +920,7 @@ DEF FNgetSignedByte(byte%) IF byte%<128 THEN =byte% ELSE =byte%-256
 ; > SAVE "T.PHASE"
 
 ; > VDU 6 : MODE 7 : PRINT "Running..."
+
+; >PRINT ~TOP
+; >*CLOSE
 

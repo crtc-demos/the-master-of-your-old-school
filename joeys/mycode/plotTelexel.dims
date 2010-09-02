@@ -27,24 +27,24 @@
 
 #ifdef TELEXEL_LOOKUP_DIV3S
 
-  DIM div3Lookup 75
-  DIM mod3Lookup 75
+  div3Lookup=P% : P%=P%+75
+  mod3Lookup=P% : P%=P%+75
   FOR i%=0 TO 74 : div3Lookup?i% = i%DIV3 : mod3Lookup?i% = i%MOD3 : NEXT i%
 
 #endif
 
 #ifdef TELEXEL_LOOKUP_YLOCS
 
-  DIM lookupYlocsLO 75
-  DIM lookupYlocsHI 75
+  lookupYlocsLO=P% : P%=P%+75
+  lookupYlocsHI=P% : P%=P%+75
   FOR y%=0 TO 74 : plotLoc%=SCRTOP+40*(y% DIV 3) : lookupYlocsLO?y%=plotLoc% MOD 256 : lookupYlocsHI?y%=plotLoc% DIV 256 : NEXT
 
 #endif
 
 #ifdef TELEXEL_LOOKUP_MASKS
 
-  DIM telexMaskX 80
-  DIM telexMaskY 75
+  telexMaskX=P% : P%=P%+80
+  telexMaskY=P% : P%=P%+75
 
   FOR x%=0 TO 79
     IF x% MOD 2 = 0 THEN telexMaskX?x% = 1 + 4 + 16
@@ -59,7 +59,7 @@
 
 #else
 
-  DIM bits 6         : REM top-bottom: L,R,L,R,L,R
+  bits=P% : P%=P%+6         : REM top-bottom: L,R,L,R,L,R
   bits?0 = 1
   bits?1 = 2
   bits?2 = 4
@@ -79,9 +79,9 @@
     #define oldIndex oldIndexLO
     #define oldData 0
 
-    DIM oldPlotBits trailLen%
-    DIM oldPlotLocLO trailLen%
-    DIM oldPlotLocHI trailLen%
+    oldPlotBits=P% : P%=P%+trailLen%
+    oldPlotLocLO=P% : P%=P%+trailLen%
+    oldPlotLocHI=P% : P%=P%+trailLen%
 
     #ifdef UNPLOT_TELEXEL_INCREMENTALLY
       ; Point the initial data somewhere harmless so we won't break anything when we clear it.
@@ -92,7 +92,7 @@
 
   #else
 
-    DIM oldData trailLen%*3
+    oldData=P% : P%=P%+trailLen%*3
     oldDataEnd = oldData + trailLen%*3
 
     #ifdef UNPLOT_TELEXEL_INCREMENTALLY
