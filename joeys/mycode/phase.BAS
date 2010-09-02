@@ -407,6 +407,7 @@ DEF PROCassemble
 .init
 	LDA #22 : JSR OSASCI
 	LDA #7 : JSR OSASCI
+	; _print("Phase started")
 	; LDX #0 : STX rotation
 	; LDA #1 : STA rotateCounterA : STA rotateCounterB : STA rotateCounterC
 	LDA #0
@@ -464,6 +465,8 @@ rotateCounterMaxY=P% : P%=P%+numWaves%
 	#endif
 
 .start
+
+	; _print("*e")
 
 	#ifdef DOUBLE_BUFFER
 		; Blit the offscreen buffer to the screen
