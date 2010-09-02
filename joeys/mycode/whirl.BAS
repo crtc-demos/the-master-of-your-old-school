@@ -16,6 +16,7 @@ MODE 4
 
 #include "asm_common.jpp"
 #include "sinLookup.dims"
+OSCLI "SAVE L.SIN "+STR$~sinLookup+" +100"
 #include "bitLookup.dims"
 #include "lookupLogs2.dims"
 
@@ -57,6 +58,7 @@ END
 
 DEF PROCassemble
 
+code=&4D00
 scrTop=&5800 + (320-256)/8*8/2
 particleI=&80
 scrLocLO=&81 : scrLocHI=&82
@@ -74,7 +76,7 @@ numParts=&8C : ?numParts = maxParts%
 particleJ=&8D : loopI=&7F
 
 FOR I%=0 TO 2 STEP 2
-P%=&4000
+P%=code
 _resetLabelCounters
 [OPT I%
 
@@ -349,6 +351,10 @@ RTS
 
 ]
 NEXT I%
+  OSCLI "SAVE O.WHIRL "+STR$~init+" "+STR$~P%+" "+STR$~init+" "+STR$~init
+  OSCLI "SPOOL I.WHIRL"
+  PRINT "start=&";~code;" end=&";~P%;" init=&";~init;" and stop=&";~stop
+  OSCLI "CLOSE"
 ENDPROC
 
 DEF FNgetSignedByte(byte%) IF byte%<128 THEN =byte% ELSE =byte%-256

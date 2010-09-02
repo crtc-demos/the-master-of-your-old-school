@@ -2,6 +2,8 @@ REM vim: ft=basic
 
 > *BASIC
 
+; > HIMEM=&4800
+
 ; Todo consider: We need resolution 80 right.  So let's double it to 160, and
 ; aim to use the *middle* 160 of the range, to avoid the poor res at the ends.
 
@@ -155,12 +157,12 @@ PROCinitWaves
 	; PRINTTAB(2) "log[127]=";(lookupLog?127);"  "
 	; PRINT "log[255]=";(lookupLog?255);"  "
 
-	PROCprepareScreen(2)
+	; PROCprepareScreen(2)
 
 	startTime=TIME - 1   ; avoid /0 !
 	!(framecounter)=0
 	CALL init
-	*FX 14,4
+	; *FX 14,4
 	; CALL start
 	REPEAT
 		; FOR f%=1 TO 10
@@ -321,6 +323,8 @@ DEF FNchop(low,hi,val)
 DEF PROCassemble
 	:
 	DIM code 2400
+	; code=&4D00
+	; code=HIMEM
 	:
 	rotationSlowdown% = 1   ; 0 means 256
 	:
@@ -388,6 +392,8 @@ DEF PROCassemble
 	[OPT I%
 
 .init
+	LDA #22 : JSR OSASCI
+	LDA #7 : JSR OSASCI
 	; LDX #0 : STX rotation
 	; LDA #1 : STA rotateCounterA : STA rotateCounterB : STA rotateCounterC
 	#ifndef DOUBLE_BUFFER
@@ -400,6 +406,7 @@ DEF PROCassemble
 	LDA #144+1 : STA currentColor
 	JSR setupColors
 	_interceptEvent(4,&220,oldEvent,event)
+	LDA #14 : LDX #4 : JSR &FFF4
 RTS
 
 .stop
@@ -868,6 +875,13 @@ RTS
 	; PRINT "?xdir=";~?xdir
 	; PRINT "?ydir=";~?ydir
 	; k$=GET$
+
+  OSCLI "SAVE O.PHASE "+STR$~code+" "+STR$~P%+" "+STR$~init+" "+STR$~init
+
+  OSCLI "SPOOL I.PHASE"
+  PRINT "start=&";~code;" end=&";~P%;" init=&";~init;" and stop=&";~stop
+  OSCLI "CLOSE"
+
 ENDPROC
 
 #endif

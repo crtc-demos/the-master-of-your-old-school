@@ -23,11 +23,12 @@
 #define SCALE_BYTE_TO_ANG(X) ((X)*2*PI/256)
 
 DIM lookupLog 1024
+; lookupLog = &4800
 ; Input represents 0-255
 ; Output represents range 0 to 5.6
 
 lookupUnlog2 = lookupLog + 256
-; Input is sum of the two above, RORed.  (Actually maybe not RORed.  But if carry bit was not set, answer=0 and you should not use lookup!)
+; Input is sum of the two above, RORed.  (Actually maybe not RORed, if one of the multiplands was a lookupLogOfSin.  But if carry bit was not set, you know the answer=0 and you should not use lookup!)
 ; (Would have been range 0-510 but we expect 0-255 representing -5.6 to +5.6.)
 ; Output represents 0-255
 
