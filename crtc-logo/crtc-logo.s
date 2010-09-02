@@ -8,6 +8,10 @@ entry:
 	jsr mos_cursoroff
 	
 	jsr player_init
+	
+	lda #12
+	jsr oswrch
+	
 	jsr player_vsync_event_enable
 	
 	jsr init_irq

@@ -14,6 +14,8 @@
         lda #1
         jsr mos_setmode
 	
+	jsr player_init
+	
 	@load_file_to clouds, 0x3000
 
 	stz framectr
@@ -33,6 +35,7 @@ busy_wait
 
 	.include "../lib/mos.s"
 	.include "../lib/load.s"
+	.include "../lib/player.s"
 
 ;oldeventv
 ;	.word 0
@@ -388,6 +391,8 @@ vsync
 	bne no_hi
 	inc framectr + 1
 no_hi:	.)
+
+	jsr player_poll_irq
 
 	; gtfo
 	ply

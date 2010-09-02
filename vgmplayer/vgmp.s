@@ -6,8 +6,10 @@
 	.alias real_time 0x22
 	; three bytes
 	.alias track_time 0x25
+	; two bytes
+	.alias frame_no 0x28
 
-	.temps 0x28..0x2f
+	.temps 0x2a..0x2f
 
 	.macro incw var
 	inc %var
@@ -28,9 +30,9 @@ no_hi:
 	.mend
 
 	; greater than or equal, three byte quantities
-	;   a+2 > b+2
-	;   || (a+2 == b+2 && a+1 > b+1)
-	;   || (a+1 == b+1 && a >= b)
+	;   a[2] > b[2]
+	;   || (a[2] == b[2] && a[1] > b[1])
+	;   || (a[2] == b[2] && a[1] == b[1] && a[0] >= b[0])
 
 	.macro cmpt_geu a b dst
 	lda %a+2
@@ -56,18 +58,21 @@ skip:
 
 consume_bytes_noirq
 	stz from_irq
-	jmp consume_bytes
+	jmp poll_player
 
 consume_bytes_irq
 	lda #1
 	sta from_irq
-	jmp consume_bytes
+	jmp poll_player
 
 old_eventv:
 	.word 0
 
 vsync_event_enable
 	sei
+
+	stz frame_no
+	stz frame_no + 1
 
 	lda $220
 	sta old_eventv
@@ -105,6 +110,14 @@ player_event
 	.(
 	cmp #4
 	bne done
+
+	inc frame_no
+	lda frame_no
+	.(
+	bne no_hi
+	inc frame_no + 1
+no_hi:	.)
+
 	jmp consume_bytes_irq
 done
 	rts
@@ -118,8 +131,8 @@ start:
 	
 	jsr select_sram
 	
-	ldx #<$8000
-	ldy #>$8000
+	ldx #<tune
+	ldy #>tune
 	lda #[16*1024]/256
 	jsr copy_to_sram
 	
@@ -185,16 +198,16 @@ not_zero:
 	; start of track data.
 	
 	ldy #0x34
-	lda #<tune
+	lda #<[tune + 0x34]
 	clc
 	adc (trackptr), y
-	sta trackptr
+	pha
 	iny
-	lda #>tune
+	lda #>[tune + 0x34]
 	adc (trackptr), y
 	sta trackptr + 1
-
-	@addw_small_const trackptr, 0x34
+	pla
+	sta trackptr
 
 setup_playing
 	stz real_time
@@ -206,9 +219,14 @@ setup_playing
 	stz track_time + 2
 	rts
 	.)
+
+poll_player:
+	.(
+
+	; if we haven't caught up with the tune yet, wait a bit more.
+	@cmpt_geu track_time, real_time, wait_for_frame
 	
 consume_bytes:
-	.(
 	lda (trackptr)
 	
 	; Hmm, implement as jump table perhaps?
@@ -333,16 +351,14 @@ wait_xy_samples
 	tya
 	adc track_time + 1
 	sta track_time + 1
-	lda #0
-	adc track_time + 2
-	sta track_time + 2
+	.(
+	bcc no_hi
+	inc track_time + 2
+no_hi:	.)
 
 	@incw trackptr
 	
 	; if track_time is greater than or equal to real_time, wait for vsync.
-	;   track_time+2 > real_time+2
-	;   || (track_time+2 == real_time+2 && track_time+1 > real_time+1)
-	;   || (track_time+1 == real_time+1 && track_time >= real_time)
 	@cmpt_geu track_time, real_time, wait_for_frame
 	
 	jmp consume_bytes
@@ -365,9 +381,8 @@ data_block
 	sta trackptr + 1
 	
 	; skip header size also
-	@addw_small_const trackptr, 7
-	
-	jmp consume_bytes
+	ldx #7
+	jmp ignore_x_bytes
 
 write_psg
 	ldy #1
@@ -386,8 +401,6 @@ write_psg
 	; sound generator write strobe. Should be low for 8ms (8us?). Each
 	; NOP is 2 cycles, so 1us.
 	stz $fe40
-	nop
-	nop
 	nop
 	nop
 	nop
@@ -443,9 +456,10 @@ wait_for_frame
 	lda real_time + 1
 	adc #>882
 	sta real_time + 1
-	lda real_time + 2
-	adc #0
-	sta real_time + 2
+	.(
+	bcc no_hi
+	inc real_time + 2
+no_hi:	.)
 	
 	rts
 		
