@@ -2,7 +2,7 @@ REM vim: ft=basic
 
 > *BASIC
 
-; > HIMEM=&5000
+; > HIMEM=&4800
 
 ; Todo consider: We need resolution 80 right.  So let's double it to 160, and
 ; aim to use the *middle* 160 of the range, to avoid the poor res at the ends.
@@ -323,7 +323,7 @@ DEF FNchop(low,hi,val)
 DEF PROCassemble
 	:
 	DIM code 2400
-	; code=&4600
+	; code=&4D00
 	; code=HIMEM
 	:
 	rotationSlowdown% = 1   ; 0 means 256
