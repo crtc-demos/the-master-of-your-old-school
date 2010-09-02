@@ -3,6 +3,7 @@
 ; numB can be a #value or mem location/reference
 ; numA,A and X are changed during the procedure
 ; numB and Y remain unchanged
+; result is in numA, remainder in A
 
 LOAD_LABEL(loop)
 LOAD_LABEL(skip1)

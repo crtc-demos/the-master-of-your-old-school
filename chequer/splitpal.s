@@ -1,7 +1,4 @@
-	.alias oswrch $ffee
-	.alias osbyte $fff4
-
-	.org $e00
+	.org $1200
         
         .(
 	stz active_phase
@@ -14,57 +11,39 @@
 	lda phase_lens
 	sta max_idx
 	
-        ;lda #4
-        ;jsr setmode
+        lda #1
+        jsr mos_setmode
+	
+	@load_file_to clouds, 0x3000
+
+	stz framectr
+	stz framectr + 1
+	
         jsr initvsync
-stop
-	; jmp stop
+	
+busy_wait
+	lda framectr + 1
+	cmp #2
+	bcc busy_wait
+	
+	jsr disable_effect
+
         rts
         .)
 
-; Set mode, mode number in A.
-setmode
-	.(
-	pha
-        lda #22
-        jsr oswrch
-        pla
-        jsr oswrch
-        rts
-        .)
-
-	.alias SYS_ORB $fe40
-	.alias SYS_ORA $fe41
-	.alias SYS_DDRB $fe42
-	.alias SYS_DDRA $fe43
-	.alias SYS_T1C_L $fe44
-	.alias SYS_T1C_H $fe45
-	.alias SYS_T1L_L $fe46
-	.alias SYS_T1L_H $fe47
-	.alias SYS_T2C_L $fe48
-	.alias SYS_T2C_H $fe49
-	.alias SYS_SR $fe4a
-	.alias SYS_ACR $fe4b
-	.alias SYS_PCR $fe4c
-	.alias SYS_IFR $fe4d
-	.alias SYS_IER $fe4e
-
-	.alias USR_T1C_L $fe64
-	.alias USR_T1C_H $fe65
-	.alias USR_T1L_L $fe66
-	.alias USR_T1L_H $fe67
-	.alias USR_T2C_L $fe68
-	.alias USR_T2C_H $fe69
-	.alias USR_SR $fe6a
-	.alias USR_ACR $fe6b
-	.alias USR_PCR $fe6c
-	.alias USR_IFR $fe6d
-	.alias USR_IER $fe6e
+	.include "../lib/mos.s"
+	.include "../lib/load.s"
 
 ;oldeventv
 ;	.word 0
 oldirq1v
 	.word 0
+
+framectr
+	.word 0
+
+clouds
+	.asc "clouds2",13
 
 initvsync
 	.(
@@ -76,9 +55,9 @@ initvsync
 	sei
 
         ; Set one-shot mode for timer 1
-        lda USR_ACR
-        and #$3f
-        sta USR_ACR
+        ;lda USR_ACR
+        ;and #$0b00111111
+        ;sta USR_ACR
         
         ; Sys VIA CA1 interrupt on positive edge
         lda SYS_PCR
@@ -92,15 +71,18 @@ initvsync
         stx $205
 
         ; Enable Usr timer 1 interrupt
-        lda #$c0
-        sta USR_IER
+        ;lda #$c0
+        ;sta USR_IER
 	
 	; Disable USR_IER bits
 	;lda #0b00111111
 	;sta USR_IER
         
+	lda SYS_IER
+	sta old_sys_ier
+	
         ; Enable Sys CA1 interrupt.
-        lda #$82
+        lda #0b10000010
         sta SYS_IER
         
 	; Disable Sys CB1, CB2, timer1 interrupts
@@ -114,18 +96,41 @@ initvsync
 	
         cli
         
-        ; Turn off ADC sampling (seems to affect timing too much)
-        ;lda #16
-        ;ldx #0
-        ;jsr osbyte
-        
         rts
+	.)
+
+old_sys_ier
+	.byte 0
+
+disable_effect:
+	.(
+	sei
+	
+	; Disable Usr timer1 interrupt
+	lda #0b01000000
+	sta USR_IER
+	
+	; Re-enable disabled bits (note: old_sys_ier has bit 7 set, i.e. this
+	; cannot disable anything).
+	lda old_sys_ier
+	sta SYS_IER
+
+	lda oldirq1v
+	sta $204
+	lda oldirq1v + 1
+	sta $205
+	
+	cli
+	rts
 	.)
 
 	; a PAL line takes 64uS.
 
 fliptime
-	.word 64 * [128 + 28] - 10
+	; fudge factor: this works OK on BeebEm, but goes in the wrong place
+	; on hardware.
+	;.word 64 * [128 + 28] - 10
+	.word 64 * [128 + 38] - 10
 
 	.include "phases.s"
 
@@ -311,6 +316,9 @@ vsync
 	ldy #1
 	lda (fliptimes), y
 	sta USR_T1L_H
+
+	; Clear IFR
+	lda SYS_ORA
 	
 	; Generate stream of interrupts
 	lda USR_ACR
@@ -318,9 +326,6 @@ vsync
 	ora #0b01000000
 	sta USR_ACR
         
-	; Clear IFR
-	lda SYS_ORA
-	
 	; Enable Sys timer1 interrupt
 	;lda #0b11000000
 	;sta SYS_IER
@@ -377,11 +382,18 @@ vsync
 	lda #0b11110000
 	sta PALCONTROL
 
+	.(
+	inc framectr
+	lda framectr
+	bne no_hi
+	inc framectr + 1
+no_hi:	.)
+
 	; gtfo
 	ply
 	plx
 	pla
 	sta $fc
-	rti
+	jmp (oldirq1v)
 
 	.)

@@ -1,0 +1,47 @@
+;; TODO: This is just a copy of _multiply8to16 - we still need to upgrade it to 16 bit!
+
+; @expects numA,numB,cHI,cLO
+
+; Multiplies two bytes numA and numB and stores the 16-bit results in cLO,HI.
+; IMPORTANT numA must be a mem location, and gets fragged.
+; (numB can be a #value or mem location/reference)
+; cLO can be numA, but cHI is needed throughout.)
+
+; NEW_LABELS(3)
+
+LOAD_LABEL(loop)
+LOAD_LABEL(skip1)
+LOAD_LABEL(skip2)
+
+; .multiply8to16
+; Input: numA and numB are the two 8-bit numbers to multiply
+; Output: Result placed in cLO/HI.  numA gets fragged.
+; Warning: numA gets fragged, but it can safely be cLO.
+; Also: X becomes 0, Y is unaffected.
+LDA _HASH 0
+STA cHI
+LDX _HASH 8
+.loop
+  CLC
+  ROL cHI
+  ; cHI can't overflow so this isn't needed: 12790 CLC
+  ROL A
+  BCC skip1
+    CLC
+    INC cHI
+  .skip1
+  ROL numA
+  BCC skip2
+    CLC
+    ADC numB
+  BCC skip2
+    INC cHI
+  .skip2
+  DEX
+BNE loop
+STA cLO
+; RTS
+
+SAVE_LABEL(loop)
+SAVE_LABEL(skip1)
+SAVE_LABEL(skip2)

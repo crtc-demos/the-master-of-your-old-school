@@ -7,6 +7,8 @@
 	; three bytes
 	.alias track_time 0x25
 
+	.temps 0x28..0x2f
+
 	.macro incw var
 	inc %var
 	lda %var
@@ -45,8 +47,81 @@ no_hi:
 skip:
 	.mend
 
+	; entry points. Must keep in sync with list in player.s!
+	jmp start
+	jmp consume_bytes_noirq
+	jmp consume_bytes_irq
+	jmp vsync_event_enable
+	jmp vsync_event_disable
+
+consume_bytes_noirq
+	stz from_irq
+	jmp consume_bytes
+
+consume_bytes_irq
+	lda #1
+	sta from_irq
+	jmp consume_bytes
+
+old_eventv:
+	.word 0
+
+vsync_event_enable
+	sei
+
+	lda $220
+	sta old_eventv
+	lda $221
+	sta old_eventv + 1
+	
+	lda #<player_event
+	sta $220
+	lda #>player_event
+	sta $221
+	
+	cli
+	
+	lda #14
+	ldx #4
+	jsr osbyte
+	
+	rts
+
+vsync_event_disable
+	sei
+
+	lda old_eventv
+	sta $220
+	lda old_eventv + 1
+	sta $221
+	
+	lda #13
+	ldx #4
+	jsr osbyte
+	
+	rts
+
+player_event
+	.(
+	cmp #4
+	bne done
+	jmp consume_bytes_irq
+done
+	rts
+	.)
+
+	.alias tune $8000
+
 start:
-	@load_file_to trackname, tune
+	.(
+	@load_file_to trackname, $3000
+	
+	jsr select_sram
+	
+	ldx #<$8000
+	ldy #>$8000
+	lda #[16*1024]/256
+	jsr copy_to_sram
 	
 	lda #<tune
 	sta trackptr
@@ -119,6 +194,8 @@ not_zero:
 	adc (trackptr), y
 	sta trackptr + 1
 
+	@addw_small_const trackptr, 0x34
+
 setup_playing
 	stz real_time
 	stz real_time + 1
@@ -127,8 +204,11 @@ setup_playing
 	stz track_time
 	stz track_time + 1
 	stz track_time + 2
+	rts
+	.)
 	
 consume_bytes:
+	.(
 	lda (trackptr)
 	
 	; Hmm, implement as jump table perhaps?
@@ -183,20 +263,30 @@ consume_bytes:
 	beq ignore_four_bytes
 	
 ignore_byte:
-	@addw_small_const trackptr, 2
-	jmp consume_bytes
+	ldx #2
+	bra ignore_x_bytes
 
 ignore_two_bytes:
-	@addw_small_const trackptr, 3
-	jmp consume_bytes
+	ldx #3
+	bra ignore_x_bytes
 
 ignore_three_bytes:
-	@addw_small_const trackptr, 4
-	jmp consume_bytes
+	ldx #4
+	bra ignore_x_bytes
 
 ignore_four_bytes:
-	@addw_small_const trackptr, 5
-	jmp consume_bytes
+	ldx #5
+
+ignore_x_bytes:
+	txa
+	clc
+	adc trackptr
+	sta trackptr
+	.(
+	bcc no_hi
+	inc trackptr + 1
+no_hi:	.)
+	bra consume_bytes
 
 wait_n_samples
 	ldy #1
@@ -283,11 +373,23 @@ write_psg
 	ldy #1
 	lda (trackptr), y
 
+	ldy from_irq
+	bne write_psg_from_irq
+
 	sei
 
+	; all lines to output
+	ldy #255
+	sty $fe43
+
 	sta $fe41
-	; strobe
+	; sound generator write strobe. Should be low for 8ms (8us?). Each
+	; NOP is 2 cycles, so 1us.
 	stz $fe40
+	nop
+	nop
+	nop
+	nop
 	nop
 	nop
 	nop
@@ -297,19 +399,42 @@ write_psg
 	
 	cli
 	
-	lda #'A'
-	jsr oswrch
+	;lda #'A'
+	;jsr oswrch
+	
+	@addw_small_const trackptr, 2
+	jmp consume_bytes
+
+write_psg_from_irq
+	; all lines to output
+	ldy #255
+	sty $fe43
+
+	sta $fe41
+	; sound generator write strobe. Should be low for 8ms (8us?). Each
+	; NOP is 2 cycles, so 1us.
+	stz $fe40
+	nop
+	nop
+	nop
+	nop
+	nop
+	nop
+	nop
+	nop
+	lda #$08
+	sta $fe40
 	
 	@addw_small_const trackptr, 2
 	jmp consume_bytes
 
 wait_for_frame
 	; wait 1 video frame, 882 samples
-	lda #19
-	jsr osbyte
+	;lda #19
+	;jsr osbyte
 	
-	lda #'F'
-	jsr oswrch
+	;lda #'F'
+	;jsr oswrch
 	
 	lda real_time
 	clc
@@ -322,7 +447,7 @@ wait_for_frame
 	adc #0
 	sta real_time + 2
 	
-	jmp consume_bytes
+	rts
 		
 end_of_sound_data:
 	.(
@@ -354,14 +479,17 @@ loop_point_unset
 	.)
 
 	rts
+	.)
 
 loop_point:
 	.word 0
 
 trackname:
-	.asc "track",13
+	.asc "music",13
+
+from_irq:
+	.byte 0
 
 	.include "../lib/mos.s"
 	.include "../lib/load.s"
-
-tune:
+	.include "../lib/sram.s"

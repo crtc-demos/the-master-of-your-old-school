@@ -1,10 +1,14 @@
 	.temps $70..$8f
 
-	.org $e00
+	.org $1200
 
 entry:
 	lda #0
 	jsr mos_setmode
+	jsr mos_cursoroff
+	
+	jsr player_init
+	jsr player_vsync_event_enable
 	
 	jsr init_irq
 	
@@ -90,17 +94,7 @@ lots_of_times:
 
 wait_a_while:
 	.(
-	ldy #255
-yloop
-	ldx #255
-xloop
-	nop
-	nop
-	nop
-	dex
-	bne xloop
-	dey
-	bne yloop
+	; do something sensible
 	rts
 	.)
 
@@ -191,6 +185,8 @@ no_hi
 
 	.include "../lib/mos.s"
 	.include "../lib/load.s"
+	.include "../lib/sram.s"
+	.include "../lib/player.s"
 	
 blank_rle:
 	.asc "blkrle",13
@@ -221,11 +217,6 @@ init_irq:
 	
 	sei
 
-        ; Sys VIA CA1 interrupt on positive edge
-        lda SYS_PCR
-        ora #$1
-        sta SYS_PCR
-
 	lda #<irq1
 	sta $204
 	lda #>irq1
@@ -235,6 +226,11 @@ init_irq:
 	sta USR_T1L_L
 	lda fliptime + 1
 	sta USR_T1L_H
+	
+	lda fliptime
+	sta USR_T1C_L
+	lda fliptime + 1
+	sta USR_T1C_H
 
 	; Generate stream of interrupts
 	lda USR_ACR

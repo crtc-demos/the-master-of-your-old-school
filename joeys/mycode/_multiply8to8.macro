@@ -1,0 +1,4 @@
+
+;;; WARNING: This file was auto-generated.  Changes will be lost!  Edit _multiply8to8.jpp instead. ;;;
+
+#define _multiply8to8(numA,numB,cHI,cLO) LOAD_LABEL(loop) : LOAD_LABEL(skip1) : LOAD_LABEL(skip2) : LDA _HASH 0 : STA cHI : LDX _HASH 8 : .loop :   CLC :   ROL cHI :   :   ROL A :   BCC skip1 :     CLC :     INC cHI :   .skip1 :   ROL numA :   BCC skip2 :     CLC :     ADC numB :   BCC skip2 :     INC cHI :   .skip2 :   DEX : BNE loop : STA cLO : SAVE_LABEL(loop) : SAVE_LABEL(skip1) : SAVE_LABEL(skip2) : 
