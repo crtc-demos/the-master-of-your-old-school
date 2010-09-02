@@ -10,8 +10,13 @@ REM vim: ft=basic expandtab ts=2 sw=2 wrap listchars=tab\:|\ ,trail\:% showbreak
 #define ASSEMBLY
 #define PLOT_XOR
 
+>PAGE=&4000
+>LOMEM=&5000
+>HIMEM=&7000
+>NEW
+
 MODE 7
-VDU 23,1,0;0;0;0;
+; VDU 23,1,0;0;0;0;
 :
 #include "teletext_bits.dim"
 :
@@ -80,13 +85,13 @@ DEF PROCassemble
   :
   #include "asm_common.jpp"
   :
-  DIM code 2400
+  ; DIM code 2400
+  code=&2000
   :
 #define PLOT_TELEXEL_SAVE_OLD
 #define PLOT_TELEXEL_SKIPIFSET
 #define UNPLOT_TELEXEL_INCREMENTALLY
 #define UNPLOT_TELEXEL_XOR
-#include "plotTelexel.dims"
   x=&83 : y=&84
   charx=&85 : chary=&86
   bitx=&87 : bity=&88
@@ -128,8 +133,23 @@ DEF PROCassemble
     ?(cornerxLookup+i%+128) = 40 - 38*sin
     ?(corneryLookup+i%+128) = 37 - 36*cos
   NEXT i%
+  #include "plotTelexel.dims"
   [OPT I%
   .init
+  LDA #22 : JSR OSASCI
+  LDA #7 : JSR OSASCI
+  ; hide cursor
+    LDA #23 : JSR OSASCI
+    LDA #1 : JSR OSASCI
+    LDA #0 : JSR OSASCI
+             JSR OSASCI
+             JSR OSASCI
+             JSR OSASCI
+             JSR OSASCI
+             JSR OSASCI
+             JSR OSASCI
+             JSR OSASCI
+  JSR setupColors
   LDX #0
   STX rotation
   STX x : STX y
@@ -204,9 +224,28 @@ DEF PROCassemble
   PLP
   ; 10600 RTS
   JMP (oldEvent)
+
+  #define currentColor _HASH (144+4)
+  .setupColors
+    LDA #SCRTOP MOD 256 : STA plotLoc
+    LDA #SCRTOP DIV 256 : STA plotLoc+1
+    LDX #25
+    LDY #0
+    .setupColorsLoop
+      DEX : BMI setupColorsLoopEnd
+      LDA currentColor : STA (plotLoc),Y
+      ; INY
+      ; LDA #157 : STA (plotLoc),Y
+      ; DEY
+      _add16(plotLoc+1,plotLoc,#0,#40,plotLoc+1,plotLoc)   ; this macro is not really short :P
+                                                           ; we always store 16-bit nums together, so no need to specify.  also it's rare we want a separate output, often we just want to add something
+      JMP setupColorsLoop
+    .setupColorsLoopEnd
+  RTS
+
   ]
   NEXT I%
-  OSCLI "SAVE O.SIERPA "+STR$~code+" "+STR$~P%+" "+STR$~init+" "+STR$~init
+  OSCLI "SAVE O.SIERPA "+STR$~code+" "+STR$~P%+" "+STR$~init
 
   OSCLI "SPOOL I.SIERPA"
   PRINT "start=&";~code;" end=&";~P%;" init=&";~init;" and stop=&";~stop
@@ -215,6 +254,6 @@ ENDPROC
 
 #endif
 
-RUN
-
+; >PRINT ~TOP
+; >*CLOSE
 

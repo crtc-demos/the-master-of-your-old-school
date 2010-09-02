@@ -1,3 +1,5 @@
+; NB This changed so that instead of using DIM, it uses up space at P%
+
 ; @related plotTelexel.asm
 ; @outputs bits, div3Lookup, mod3Lookup, (oldData, oldDataEnd)
 ; @optional PLOT_TELEXEL_SAVE_OLD, OLDDATA_SUPERFAST
@@ -92,6 +94,7 @@
 
   #else
 
+    ; oldData=P% : P%=P%+trailLen%*3
     oldData=P% : P%=P%+trailLen%*3
     oldDataEnd = oldData + trailLen%*3
 

@@ -1,5 +1,8 @@
 ; vim: ft=basic
 
+>PAGE=&3800
+>NEW
+
 MODE 7
 
 #define INTERPOLATE
@@ -46,7 +49,8 @@ END
 
 DEF PROCassemble
 
-  DIM code 2400
+  ; DIM code 2400
+  code=&2C00
 
   FOR i%=0 TO maxLines%-1
     curRotList?i% = 32/3
