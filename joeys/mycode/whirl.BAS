@@ -1,6 +1,9 @@
 ; Whirlpool effect
 ; Each dot will have two angles, theta (around), phi (out)
 
+>PAGE=&3800
+>NEW
+
 MODE 4
 
 ; Double height+width dots?
