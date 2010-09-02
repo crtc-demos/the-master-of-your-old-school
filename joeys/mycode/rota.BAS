@@ -8,7 +8,11 @@ MODE 7
 
 #define ASSEMBLY
 #include "sinLookup.dims"
+OSCLI "SAVE L.SIN "+STR$~sinLookup+" +100"
+#include "lookupLogs2.dims"
 #include "asm_common.jpp"
+
+OSCLI "LOAD L.LOGS "+STR$~(lookupLog)
 
 maxLines% = 25
 
@@ -26,6 +30,7 @@ REM *FX 14,4
 REPEAT
   PRINTTAB(0,0);
   PRINT "";(!frameCounter * 100 DIV (TIME-startTime));"  "
+  PRINT "";?phase;"  "
   PRINT "";(?tension);"  "
   PRINT "";TIME;"  "
   PRINT "";!frameCounter;"  "
@@ -35,7 +40,7 @@ REPEAT
   PRINT "";curRotList?2;"  "
   ; PRINT "lastLeft.0=";lastLeft?0;"  "
   ; PRINT "lastLeft.1=";lastLeft?1;"  "
-  ?tension = 160 + 95*COS(!frameCounter*2*PI/1500)
+  ; ?tension = 160 + 95*COS(!frameCounter*2*PI/1500)
 UNTIL FALSE
 END
 
@@ -54,9 +59,9 @@ DEF PROCassemble
   oldEvent=&70 ; and &71
   frameCounter=&72 ; and &73,74,75
   !frameCounter = 0
-  tension=&76  : ?tension = 100
+  tension=&76
   rotation=&77
-  counterA=&78 : ?counterA = 255
+  counterA=&78
 
   ; Often change (per-frame)
   line=&79
@@ -65,6 +70,7 @@ DEF PROCassemble
   #ifdef KEEP_INTERRUPTS
     alreadyRunning=&7C
   #endif
+  phase=&7D
 
   ; Earlier
   numHI=&80
@@ -91,10 +97,17 @@ DEF PROCassemble
     LDA #7 : JSR OSASCI
     LDA #192 : STA rotation
     LDA #0 : STA counterA
-    _interceptEvent(4,&220,oldEvent,event)
     #ifdef KEEP_INTERRUPTS
       LDA #0 : STA alreadyRunning
     #endif
+    LDA #100 : STA tension
+    LDA #255 : STA counterA
+    LDA #0 : STA frameCounter
+             STA frameCounter+1
+             STA frameCounter+2
+             STA frameCounter+3
+    LDA #64 : STA phase
+    _interceptEvent(4,&220,oldEvent,event)
     LDA #14 : LDX #4 : JSR &FFF4
   RTS
 
@@ -116,6 +129,27 @@ DEF PROCassemble
     INC frameCounter : BNE frameCounterNoOverflow
       INC frameCounter+1
     .frameCounterNoOverflow
+
+    ; ?tension = 160 + 95*COS(!frameCounter*255/1500)
+    LDA frameCounter : AND #13 : BNE skipPhase
+      ; INC phase
+      LDA frameCounter : STA numLO
+      _multiply16to16(numLO,#255,phase,numLO)
+      LDX phase
+      LDA sinCharge,X : STA postInvertA-1
+      AND #1 : STA postInvertAsub-1
+      LDA sinLookup,X
+      CLC : ADC #202   ; my guess at log 95
+      BCS nonZero
+        LDA #0 : JMP asdasd
+      .nonZero
+      TAX : LDA lookupUnlog2,X
+      SEC : SBC #123 : .postInvertAsub
+      EOR #123 : .postInvertA
+      .asdasd
+      CLC : ADC #160
+      STA tension
+    .skipPhase
 
     INC counterA
     ; LDA #2 : STA counterA

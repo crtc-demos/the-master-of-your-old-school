@@ -157,12 +157,12 @@ PROCinitWaves
 	; PRINTTAB(2) "log[127]=";(lookupLog?127);"  "
 	; PRINT "log[255]=";(lookupLog?255);"  "
 
-	PROCprepareScreen(2)
+	; PROCprepareScreen(2)
 
 	startTime=TIME - 1   ; avoid /0 !
 	!(framecounter)=0
 	CALL init
-	*FX 14,4
+	; *FX 14,4
 	; CALL start
 	REPEAT
 		; FOR f%=1 TO 10
@@ -392,6 +392,8 @@ DEF PROCassemble
 	[OPT I%
 
 .init
+	LDA #22 : JSR OSASCI
+	LDA #7 : JSR OSASCI
 	; LDX #0 : STX rotation
 	; LDA #1 : STA rotateCounterA : STA rotateCounterB : STA rotateCounterC
 	#ifndef DOUBLE_BUFFER
@@ -404,6 +406,7 @@ DEF PROCassemble
 	LDA #144+1 : STA currentColor
 	JSR setupColors
 	_interceptEvent(4,&220,oldEvent,event)
+	LDA #14 : LDX #4 : JSR &FFF4
 RTS
 
 .stop

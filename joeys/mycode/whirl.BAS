@@ -58,7 +58,7 @@ END
 
 DEF PROCassemble
 
-code=&4000
+code=&4D00
 scrTop=&5800 + (320-256)/8*8/2
 particleI=&80
 scrLocLO=&81 : scrLocHI=&82
