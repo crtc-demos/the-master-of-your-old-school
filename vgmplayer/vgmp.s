@@ -25,6 +25,26 @@ no_hi:
 no_hi:
 	.mend
 
+	; greater than or equal, three byte quantities
+	;   a+2 > b+2
+	;   || (a+2 == b+2 && a+1 > b+1)
+	;   || (a+1 == b+1 && a >= b)
+
+	.macro cmpt_geu a b dst
+	lda %a+2
+	cmp %b+2
+	bcc skip
+	bne %dst
+	lda %a+1
+	cmp %b+1
+	bcc skip
+	bne %dst
+	lda %a
+	cmp %b
+	bcs %dst
+skip:
+	.mend
+
 start:
 	@load_file_to trackname, tune
 	
@@ -182,7 +202,7 @@ wait_n_samples
 	ldy #1
 	lda (trackptr), y
 	tax
-	ldy #2
+	iny
 	lda (trackptr), y
 	tay
 	
@@ -232,21 +252,8 @@ wait_xy_samples
 	; if track_time is greater than or equal to real_time, wait for vsync.
 	;   track_time+2 > real_time+2
 	;   || (track_time+2 == real_time+2 && track_time+1 > real_time+1)
-	;   || (track_time+1 == real_time+1 && track_time > real_time)
-	.(
-	lda track_time + 2
-	cmp real_time + 2
-	bcc skip		; track_time+2 < real_time+2, so skip.
-	bne wait_for_frame	; not equal, must be greater.
-	lda track_time + 1	; track_time+2 == real_time+2
-	cmp real_time + 1
-	bcc skip		; track_time+1 < real_time+1, so skip.
-	bne wait_for_frame	; not equal, must be greater.
-	lda track_time
-	cmp real_time
-	bcs wait_for_frame	; track_time >= real_time.
-skip
-	.)
+	;   || (track_time+1 == real_time+1 && track_time >= real_time)
+	@cmpt_geu track_time, real_time, wait_for_frame
 	
 	jmp consume_bytes
 
