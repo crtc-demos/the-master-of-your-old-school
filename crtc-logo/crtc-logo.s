@@ -5,6 +5,7 @@
 entry:
 	lda #0
 	jsr mos_setmode
+	jsr mos_cursoroff
 	
 	jsr init_irq
 	

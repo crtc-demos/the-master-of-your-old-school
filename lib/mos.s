@@ -47,3 +47,27 @@ mos_setmode:
 	pla
 	jsr oswrch
 	rts
+
+mos_cursoroff:
+	.(
+	ldx #0
+loop
+	lda vdubytes,x
+	jsr oswrch
+	inx
+	cpx #10
+	bne loop
+	rts
+
+vdubytes:
+	.byte 23
+	.byte 0
+	.byte 10
+	.byte 32
+	.byte 0
+	.byte 0
+	.byte 0
+	.byte 0
+	.byte 0
+	.byte 0
+	.)

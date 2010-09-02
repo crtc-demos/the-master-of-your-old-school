@@ -285,9 +285,18 @@ write_psg
 
 	sei
 
+	; all lines to output
+	ldy #255
+	sty $fe43
+
 	sta $fe41
-	; strobe
+	; sound generator write strobe. Should be low for 8ms (8us?). Each
+	; NOP is 2 cycles, so 1us.
 	stz $fe40
+	nop
+	nop
+	nop
+	nop
 	nop
 	nop
 	nop
