@@ -94,6 +94,7 @@
 
   #else
 
+    ; oldData=P% : P%=P%+trailLen%*3
     oldData=P% : P%=P%+trailLen%*3
     oldDataEnd = oldData + trailLen%*3
 

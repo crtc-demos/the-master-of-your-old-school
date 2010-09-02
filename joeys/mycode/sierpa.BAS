@@ -10,7 +10,9 @@ REM vim: ft=basic expandtab ts=2 sw=2 wrap listchars=tab\:|\ ,trail\:% showbreak
 #define ASSEMBLY
 #define PLOT_XOR
 
->PAGE=&3800
+>PAGE=&4000
+>LOMEM=&5000
+>HIMEM=&7000
 >NEW
 
 MODE 7
@@ -84,7 +86,7 @@ DEF PROCassemble
   #include "asm_common.jpp"
   :
   ; DIM code 2400
-  code=&2100
+  code=&2000
   :
 #define PLOT_TELEXEL_SAVE_OLD
 #define PLOT_TELEXEL_SKIPIFSET
@@ -243,7 +245,7 @@ DEF PROCassemble
 
   ]
   NEXT I%
-  OSCLI "SAVE O.SIERPA "+STR$~code+" "+STR$~P%+" "+STR$~init+" "+STR$~init
+  OSCLI "SAVE O.SIERPA "+STR$~code+" "+STR$~P%+" "+STR$~init
 
   OSCLI "SPOOL I.SIERPA"
   PRINT "start=&";~code;" end=&";~P%;" init=&";~init;" and stop=&";~stop
@@ -252,6 +254,6 @@ ENDPROC
 
 #endif
 
-RUN
-
+; >PRINT ~TOP
+; >*CLOSE
 
