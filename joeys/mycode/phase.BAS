@@ -2,6 +2,8 @@ REM vim: ft=basic
 
 > *BASIC
 
+; > HIMEM=&5000
+
 ; Todo consider: We need resolution 80 right.  So let's double it to 160, and
 ; aim to use the *middle* 160 of the range, to avoid the poor res at the ends.
 
@@ -321,6 +323,8 @@ DEF FNchop(low,hi,val)
 DEF PROCassemble
 	:
 	DIM code 2400
+	; code=&4600
+	; code=HIMEM
 	:
 	rotationSlowdown% = 1   ; 0 means 256
 	:
@@ -868,6 +872,13 @@ RTS
 	; PRINT "?xdir=";~?xdir
 	; PRINT "?ydir=";~?ydir
 	; k$=GET$
+
+  OSCLI "SAVE O.PHASE "+STR$~code+" "+STR$~P%+" "+STR$~init+" "+STR$~init
+
+  OSCLI "SPOOL I.PHASE"
+  PRINT "start=&";~code;" end=&";~P%;" init=&";~init;" and stop=&";~stop
+  OSCLI "CLOSE"
+
 ENDPROC
 
 #endif

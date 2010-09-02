@@ -22,7 +22,8 @@
 #define SCALE_ANG_TO_BYTE(X) ((X)*256/2/PI)
 #define SCALE_BYTE_TO_ANG(X) ((X)*2*PI/256)
 
-DIM lookupLog 1024
+; DIM lookupLog 1024
+lookupLog = &4800
 ; Input represents 0-255
 ; Output represents range 0 to 5.6
 

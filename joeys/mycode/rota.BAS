@@ -311,8 +311,11 @@ DEF PROCassemble
   ]
   NEXT I%
 
-  PRINT "init is at &";~init;" and stop is at &";~stop
   OSCLI "SAVE O.ROTA "+STR$~init+" "+STR$~P%+" "+STR$~init+" "+STR$~init
+
+  OSCLI "SPOOL I.ROTA"
+  PRINT "start=&";~code;" end=&";~P%;" init=&";~init;" and stop=&";~stop
+  OSCLI "CLOSE"
 
 ENDPROC
 

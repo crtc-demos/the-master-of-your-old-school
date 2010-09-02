@@ -1,4 +1,5 @@
-DIM sinLookup 256
+; DIM sinLookup 256
+sinLookup = &4C00
 
 ; sinLookup[0-255] input<0to2pi output<0.0-1.0
 ; the output is not signed, you must apply +/- yourself.  the sign is the top bit of your input byte.

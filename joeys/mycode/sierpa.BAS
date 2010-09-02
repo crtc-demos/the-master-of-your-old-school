@@ -81,9 +81,6 @@ DEF PROCassemble
   #include "asm_common.jpp"
   :
   DIM code 2400
-  DIM corners 6                   : REM 3 x, 3 y
-  corners?0 = 2+76/2 : corners?1 = 2+76 : corners?2 = 2+0
-  corners?3 = 0      : corners?4 = 75   : corners?5 = 75
   :
 #define PLOT_TELEXEL_SAVE_OLD
 #define PLOT_TELEXEL_SKIPIFSET
@@ -98,18 +95,10 @@ DEF PROCassemble
   oldIndexLO=&81
   oldIndexHI=&82
   :
-  DIM cornerxLookup 256  ; BUG: If I go up to 255 then all the 160s die!  O_o
-  DIM corneryLookup 256  ; To reproduce the bug, move DIM oldData above div3Lookup.
+  ; DIM cornerxLookup 256  ; BUG: If I go up to 255 then all the 160s die!  O_o
+  ; DIM corneryLookup 256  ; To reproduce the bug, move DIM oldData above div3Lookup.
   REM THIS IS WELL SLOW LOL
   scaleItoPI = 2*PI/256
-  FOR i%=0 TO 127
-    sin = SIN(i%*scaleItoPI)
-    cos = COS(i%*scaleItoPI)
-    ?(cornerxLookup+i%) = 40 + 38*sin
-    ?(corneryLookup+i%) = 37 + 36*cos
-    ?(cornerxLookup+i%+128) = 40 - 38*sin
-    ?(corneryLookup+i%+128) = 37 - 36*cos
-  NEXT i%
   :
   framecounter=&70
   rotateCounter=&71
@@ -122,6 +111,24 @@ DEF PROCassemble
   _resetLabelCounters
   [OPT I%
   ; #include "mult8.asm"
+  .corners
+    _repeat(EQUB 0,6)
+  .cornerxLookup
+    _repeat(EQUB 0,256)
+  .corneryLookup
+    _repeat(EQUB 0,256)
+  ]
+  corners?0 = 2+76/2 : corners?1 = 2+76 : corners?2 = 2+0
+  corners?3 = 0      : corners?4 = 75   : corners?5 = 75
+  FOR i%=0 TO 127
+    sin = SIN(i%*scaleItoPI)
+    cos = COS(i%*scaleItoPI)
+    ?(cornerxLookup+i%) = 40 + 38*sin
+    ?(corneryLookup+i%) = 37 + 36*cos
+    ?(cornerxLookup+i%+128) = 40 - 38*sin
+    ?(corneryLookup+i%+128) = 37 - 36*cos
+  NEXT i%
+  [OPT I%
   .init
   LDX #0
   STX rotation
@@ -199,8 +206,11 @@ DEF PROCassemble
   JMP (oldEvent)
   ]
   NEXT I%
-  PRINT "init is at &";~init;" and stop is at &";~stop
   OSCLI "SAVE O.SIERPA "+STR$~code+" "+STR$~P%+" "+STR$~init+" "+STR$~init
+
+  OSCLI "SPOOL I.SIERPA"
+  PRINT "start=&";~code;" end=&";~P%;" init=&";~init;" and stop=&";~stop
+  OSCLI "CLOSE"
 ENDPROC
 
 #endif
