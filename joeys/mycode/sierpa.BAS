@@ -92,6 +92,7 @@ DEF PROCassemble
 #define PLOT_TELEXEL_SKIPIFSET
 #define UNPLOT_TELEXEL_INCREMENTALLY
 #define UNPLOT_TELEXEL_XOR
+#define KEEP_INTERRUPTS
   x=&83 : y=&84
   charx=&85 : chary=&86
   bitx=&87 : bity=&88
@@ -156,7 +157,9 @@ DEF PROCassemble
   LDA #1 : STA rotateCounter
   LDA #oldData MOD 256 : STA oldIndexLO
   LDA #oldData DIV 256 : STA oldIndexHI
-  ;
+  #ifdef KEEP_INTERRUPTS
+    LDA #0 : STA alreadyRunning
+  #endif
   _interceptEvent(4,&220,oldEvent,event)
   LDA #14 : LDX #4 : JSR &FFF4
   RTS
@@ -165,6 +168,12 @@ DEF PROCassemble
   _removeEvent(4,&220,oldEvent,event)
   RTS
   .event
+  #ifdef KEEP_INTERRUPTS
+    LDA alreadyRunning : CMP #0 : BEQ okEvent : JMP leaveEvent
+    .okEvent
+    LDA #1 : STA alreadyRunning
+    CLI
+  #endif
   DEC rotateCounter : BNE noRotate
   LDA #rotationSlowdown% : STA rotateCounter
   .rotate
@@ -218,12 +227,16 @@ DEF PROCassemble
   .plotLoopOut
   INC loopCounter : LDA loopCounter : CMP #plotLoops% : BEQ out : JMP plotLoop
   .out
+  #ifdef KEEP_INTERRUPTS
+    SEI
+    LDA #0 : STA alreadyRunning
+  #endif
   PLA : TAY
   PLA : TAX
   PLA
   PLP
-  ; 10600 RTS
-  JMP (oldEvent)
+  RTS
+  ; JMP (oldEvent)
 
   #define currentColor _HASH (144+4)
   .setupColors

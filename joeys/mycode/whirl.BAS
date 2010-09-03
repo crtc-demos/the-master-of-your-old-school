@@ -76,7 +76,7 @@ wx=&89 : wy=&8A
   alreadyRunning=&8B
   ?alreadyRunning=0
 #endif
-numParts=&8C : ?numParts = maxParts%
+numParts=&8C
 particleJ=&8D : loopI=&7F
 
 FOR I%=0 TO 2 STEP 2
@@ -122,28 +122,33 @@ _resetLabelCounters
   LDA #22 : JSR OSASCI
   LDA #4 : JSR OSASCI
   ; hide cursor
-    ; LDA #23 : JSR OSASCI
-    ; LDA #1 : JSR OSASCI
-    ; LDA #0 : JSR OSASCI
-             ; JSR OSASCI
-             ; JSR OSASCI
-             ; JSR OSASCI
-             ; JSR OSASCI
-             ; JSR OSASCI
-             ; JSR OSASCI
-             ; JSR OSASCI
+    LDA #23 : JSR OSASCI
+    LDA #1 : JSR OSASCI
+    LDA #0 : JSR OSASCI
+             JSR OSASCI
+             JSR OSASCI
+             JSR OSASCI
+             JSR OSASCI
+             JSR OSASCI
+             JSR OSASCI
+             JSR OSASCI
+  LDA #maxParts% : STA numParts
   LDX #0 : STX particleI
   .initLoop
     .spawnParticle
       ; EOR &FE64 : STA partTheta,X
       ; EOR &FE65 : AND #63 : STA partPhi,X
       JSR cacheParticleData
+      LDX particleI : LDA #0
+      STA oldLocLO,X : STA oldLocHI,X
+      STA oldBit,X
   INC particleI : LDA particleI : CMP numParts : BNE initLoop
-  LDA #0 : LDX #0
+  ; LDA #0 : LDX numParts
   ; .clearOldLoop
+    ; DEX
     ; STA oldLocLO,X : STA oldLocHI,X
     ; STA oldBit,X
-    ; INX : BNE clearOldLoop
+    ; BNE clearOldLoop
   LDA #0 : STA particleI
   .setupIntercept
     _interceptEvent(4,&220,oldVector,myEvent)

@@ -351,7 +351,7 @@ DEF PROCassemble
 		#endif
 	#endif
 	;; Re-enable interrupts (in case we take longer than a frame) - needed for accurate FPS reading:
-	; #define KEEP_INTERRUPTS
+	#define KEEP_INTERRUPTS
 	;; LOOP_IN_FOREGROUND will continue to run the renderer, rather than wait for
 	;; the next frame event.  Will very occasionally drop out so that BASIC may
 	;; make updates.  This can increase the framerate somewhat, but leaves very
@@ -407,6 +407,17 @@ DEF PROCassemble
 .init
 	LDA #22 : JSR OSASCI
 	LDA #7 : JSR OSASCI
+	; hide cursor
+		LDA #23 : JSR OSASCI
+		LDA #1 : JSR OSASCI
+		LDA #0 : JSR OSASCI
+						 JSR OSASCI
+						 JSR OSASCI
+						 JSR OSASCI
+						 JSR OSASCI
+						 JSR OSASCI
+						 JSR OSASCI
+						 JSR OSASCI
 	; _print("Phase started")
 	; LDX #0 : STX rotation
 	; LDA #1 : STA rotateCounterA : STA rotateCounterB : STA rotateCounterC
@@ -417,11 +428,11 @@ DEF PROCassemble
 		LDA #oldData MOD 256 : STA oldIndexLO
 		LDA #oldData DIV 256 : STA oldIndexHI
 	#endif
+	LDA #144+1 : STA currentColor
+	JSR setupColors
 	#ifdef KEEP_INTERRUPTS
 		LDA #0 : STA alreadyRunning
 	#endif
-	LDA #144+1 : STA currentColor
-	JSR setupColors
 	_interceptEvent(4,&220,oldEvent,event)
 	LDA #14 : LDX #4 : JSR &FFF4
 RTS

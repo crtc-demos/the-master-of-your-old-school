@@ -99,6 +99,17 @@ DEF PROCassemble
   .init
     LDA #22 : JSR OSASCI
     LDA #7 : JSR OSASCI
+  ; hide cursor
+    LDA #23 : JSR OSASCI
+    LDA #1 : JSR OSASCI
+    LDA #0 : JSR OSASCI
+             JSR OSASCI
+             JSR OSASCI
+             JSR OSASCI
+             JSR OSASCI
+             JSR OSASCI
+             JSR OSASCI
+             JSR OSASCI
     LDA #192 : STA rotation
     LDA #0 : STA counterA
     #ifdef KEEP_INTERRUPTS
