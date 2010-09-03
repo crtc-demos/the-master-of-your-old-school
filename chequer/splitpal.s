@@ -14,7 +14,11 @@
         lda #1
         jsr mos_setmode
 	
-	jsr player_init
+	; player should be initialised already!
+	; jsr player_init
+	
+	; re-select sram
+	jsr player_select_sram
 	
 	@load_file_to clouds, 0x3000
 

@@ -61,6 +61,8 @@ entry:
 
 	jsr wait_a_while
 
+	stz number_of_times
+
 lots_of_times:
 	ldx b2c_ptr
 	ldy b2c_ptr + 1
@@ -92,13 +94,61 @@ lots_of_times:
 
 	jsr wait_a_while
 
-	bra lots_of_times
+	inc number_of_times
+	lda number_of_times
+	cmp #3
+	bcc lots_of_times
+
+	jsr player_vsync_event_disable
+	jsr uninit_irq
+	jsr player_unselect_sram
+
+	ldx #<next_effect
+	ldy #>next_effect
+	jsr oscli
 
 	rts
 
+next_effect
+	.asc "splitp",13
+
+number_of_times:
+	.byte 0
+
+start_time:
+	.word 0
+current_time:
+	.word 0
+
 wait_a_while:
 	.(
-	; do something sensible
+	sei
+	lda player_frame_no
+	sta start_time
+	lda player_frame_no
+	sta start_time + 1
+	cli
+	
+loop:
+	sei
+	lda player_frame_no
+	sta current_time
+	lda player_frame_no + 1
+	sta current_time + 1
+	cli
+	
+	lda current_time
+	sei
+	sbc start_time
+	sta current_time
+	lda current_time + 1
+	sbc start_time + 1
+	sta current_time + 1
+	
+	lda current_time
+	cmp #50
+	bcc loop
+	
 	rts
 	.)
 
@@ -246,6 +296,21 @@ init_irq:
 	lda #0b11000000
 	sta USR_IER
 
+	cli
+	rts
+
+uninit_irq
+	sei
+	; Disable usr timer1 interrupt
+	lda #0b01000000
+	sta USR_IER
+	
+	; restore old IRQ handler
+	lda oldirq1v
+	sta $204
+	lda oldirq1v + 1
+	sta $205
+	
 	cli
 	rts
 

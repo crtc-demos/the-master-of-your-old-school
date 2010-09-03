@@ -3,6 +3,7 @@
 	.alias osfind $ffce
 	.alias osgbpb $ffd1
 	.alias osfile $ffdd
+	.alias oscli $fff7
 
 	.alias SYS_ORB $fe40
 	.alias SYS_ORA $fe41

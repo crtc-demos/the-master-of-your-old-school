@@ -55,6 +55,8 @@ skip:
 	jmp consume_bytes_irq
 	jmp vsync_event_enable
 	jmp vsync_event_disable
+	jmp select_sram
+	jmp select_old_lang
 
 consume_bytes_noirq
 	stz from_irq
@@ -499,7 +501,7 @@ loop_point:
 	.word 0
 
 trackname:
-	.asc "music",13
+	.asc "music2",13
 
 from_irq:
 	.byte 0
