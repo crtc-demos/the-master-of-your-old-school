@@ -2,7 +2,7 @@
 ; Each dot will have two angles, theta (around), phi (out)
 
 >PAGE=&3000
->LOMEM=&4000
+; >LOMEM=&4000
 >NEW
 
 MODE 7
@@ -20,10 +20,9 @@ MODE 7
 
 #include "asm_common.jpp"
 #include "sinLookup.dims"
-OSCLI "SAVE L.SIN "+STR$~sinLookup+" +100"
-#include "bitLookup.dims"
-#include "lookupLogs2.dims"
+; OSCLI "SAVE L.SIN "+STR$~sinLookup+" +100"
 
+#include "lookupLogs2.dims"
 ; #include "lookupLogs2.calc"   ; Does not work - needs FNchop from phase.BAS
 fail%=0
 ON ERROR REPORT:PRINT " #";ERR;" at line ";ERL:fail%=1
@@ -39,7 +38,8 @@ maxParts%=128
 
 PROCassemble
 
-!framecounter=0 : starttime=TIME
+; !framecounter=0
+starttime=TIME
 
 CALL init
 ; *FX 14,4
@@ -74,18 +74,20 @@ logwr=&87   ; does not overlap, relabelled for clarity
 wx=&89 : wy=&8A
 #ifdef KEEP_INTERRUPTS
   alreadyRunning=&8B
-  ?alreadyRunning=0
 #endif
 numParts=&8C
 particleJ=&8D : loopI=&7F
+oldVector=&70 ; and &71
 
 FOR I%=0 TO 2 STEP 2
 P%=code
 _resetLabelCounters
 [OPT I%
 
-.oldVector
-  EQUB 0 : EQUB 0
+; .oldVector
+  ; EQUB 0 : EQUB 0
+
+#include "bitLookup.asm"
 
 .partTheta
   _repeat(EQUB RND(256),maxParts%)
@@ -150,6 +152,13 @@ _resetLabelCounters
     ; STA oldBit,X
     ; BNE clearOldLoop
   LDA #0 : STA particleI
+           STA framecounter
+           STA framecounter+1
+           STA framecounter+2
+           STA framecounter+3
+  #ifdef KEEP_INTERRUPTS
+    LDA #0 : STA alreadyRunning
+  #endif
   .setupIntercept
     _interceptEvent(4,&220,oldVector,myEvent)
   LDA #14 : LDX #4 : JSR &FFF4

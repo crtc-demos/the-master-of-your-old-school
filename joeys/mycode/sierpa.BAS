@@ -92,7 +92,11 @@ DEF PROCassemble
 #define PLOT_TELEXEL_SKIPIFSET
 #define UNPLOT_TELEXEL_INCREMENTALLY
 #define UNPLOT_TELEXEL_XOR
-#define KEEP_INTERRUPTS
+;; For some reason if we enable KEEP_INTERRUPTS then it leaves dirty dots behind!
+; #define KEEP_INTERRUPTS
+  #ifdef KEEP_INTERRUPTS
+    alreadyRunning=&80
+  #endif
   x=&83 : y=&84
   charx=&85 : chary=&86
   bitx=&87 : bity=&88
@@ -225,18 +229,18 @@ DEF PROCassemble
 
   ; end of plot loop
   .plotLoopOut
-  INC loopCounter : LDA loopCounter : CMP #plotLoops% : BEQ out : JMP plotLoop
-  .out
+  INC loopCounter : LDA loopCounter : CMP #plotLoops% : BEQ leaveEvent : JMP plotLoop
+  .leaveEvent
   #ifdef KEEP_INTERRUPTS
     SEI
     LDA #0 : STA alreadyRunning
   #endif
-  PLA : TAY
-  PLA : TAX
-  PLA
-  PLP
-  RTS
+  ; PLA : TAY
+  ; PLA : TAX
+  ; PLA
+  ; PLP
   ; JMP (oldEvent)
+RTS
 
   #define currentColor _HASH (144+4)
   .setupColors
