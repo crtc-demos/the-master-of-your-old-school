@@ -13,6 +13,7 @@
 	
         lda #1
         jsr mos_setmode
+	jsr mos_cursoroff
 	
 	; player should be initialised already!
 	; jsr player_init
@@ -29,7 +30,12 @@
 	
 busy_wait
 	lda framectr + 1
-	cmp #2
+	pha
+	clc
+	adc #254
+	sta phase_delta
+	pla
+	cmp #6
 	bcc busy_wait
 	
 	jsr disable_effect
@@ -42,8 +48,11 @@ busy_wait
         rts
         .)
 
+phase_delta
+	.byte 254
+
 next_effect
-	.asc "mult",13
+	.asc "end",13
 
 	.include "../lib/mos.s"
 	.include "../lib/load.s"
@@ -321,7 +330,8 @@ vsync
 	sta fliptimes + 1
 
 	lda active_phase
-	inc a
+	clc
+	adc phase_delta
 	and #31
 	sta active_phase
 

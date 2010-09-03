@@ -138,7 +138,7 @@ loop:
 	cli
 	
 	lda current_time
-	sei
+	sec
 	sbc start_time
 	sta current_time
 	lda current_time + 1

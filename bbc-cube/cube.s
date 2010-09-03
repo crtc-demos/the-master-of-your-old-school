@@ -1,9 +1,3 @@
-	.alias oswrch $ffee
-	.alias osbyte $fff4
-	.alias osfind $ffce
-	.alias osgbpb $ffd1
-	.alias osfile $ffdd
-
 	; The "notemps" directive says that these functions are safe to call
 	; from within a context. I.e., they use none of the automatically
 	; allocated temporaries.
@@ -58,7 +52,8 @@
 entry:
 	.(
 	lda #2
-	jsr setmode
+	jsr mos_setmode
+	jsr mos_cursoroff
 	;jsr setorigin
 	jsr select_sram
 	jsr clear_sram
@@ -73,14 +68,6 @@ entry:
 	jsr select_old_lang
 	rts
 	.)
-
-setmode:
-	pha
-	lda #22
-	jsr oswrch
-	pla
-	jsr oswrch
-	rts
 
 	.context clear_sram
 	.var2 ptr
@@ -141,6 +128,8 @@ write_sound_byte
 	cli
 	rts
 	.)
+
+	.include "../lib/mos.s"
 
 centre:
 	.byte 29
