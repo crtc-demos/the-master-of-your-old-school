@@ -19,11 +19,11 @@ OSCLI "LOAD L.LOGS "+STR$~(lookupLog)
 
 maxLines% = 25
 
-DIM curRotList maxLines%
+; DIM curRotList maxLines%
 
-DIM lastLeft maxLines%
-DIM lastMiddle maxLines%
-DIM lastRight maxLines%
+; DIM lastLeft maxLines%
+; DIM lastMiddle maxLines%
+; DIM lastRight maxLines%
 
 PROCassemble
 CLS
@@ -52,17 +52,10 @@ DEF PROCassemble
   ; DIM code 2400
   code=&2C00
 
-  FOR i%=0 TO maxLines%-1
-    curRotList?i% = 32/3
-    lastLeft?i% = 255
-    lastMiddle?i% = 255
-    lastRight?i% = 255
-  NEXT
-
   ; Rarely change (inter-frame)
   oldEvent=&70 ; and &71
   frameCounter=&72 ; and &73,74,75
-  !frameCounter = 0
+  ; !frameCounter = 0
   tension=&76
   rotation=&77
   counterA=&78
@@ -99,18 +92,29 @@ DEF PROCassemble
   .init
     LDA #22 : JSR OSASCI
     LDA #7 : JSR OSASCI
+  ; hide cursor
+    LDA #23 : JSR OSASCI
+    LDA #1 : JSR OSASCI
+    LDA #0 : JSR OSASCI
+             JSR OSASCI
+             JSR OSASCI
+             JSR OSASCI
+             JSR OSASCI
+             JSR OSASCI
+             JSR OSASCI
+             JSR OSASCI
     LDA #192 : STA rotation
     LDA #0 : STA counterA
     #ifdef KEEP_INTERRUPTS
       LDA #0 : STA alreadyRunning
     #endif
-    LDA #100 : STA tension
+    LDA #251 : STA tension
     LDA #255 : STA counterA
     LDA #0 : STA frameCounter
              STA frameCounter+1
              STA frameCounter+2
              STA frameCounter+3
-    LDA #64 : STA phase
+    LDA #56 : STA phase
     _interceptEvent(4,&220,oldEvent,event)
     LDA #14 : LDX #4 : JSR &FFF4
   RTS
@@ -119,6 +123,25 @@ DEF PROCassemble
     LDA #13 : LDX #4 : JSR &FFF4
     _removeEvent(4,&220,oldEvent,event)
   RTS
+
+  .curRotList
+    _repeat(EQUB 0,maxLines%)
+
+  .lastLeft
+    _repeat(EQUB 0,maxLines%)
+  .lastMiddle
+    _repeat(EQUB 0,maxLines%)
+  .lastRight
+    _repeat(EQUB 0,maxLines%)
+
+  ]
+  FOR i%=0 TO maxLines%-1
+    curRotList?i% = 32/3
+    lastLeft?i% = 255
+    lastMiddle?i% = 255
+    lastRight?i% = 255
+  NEXT
+  [OPT I%
 
   .event
 
@@ -135,15 +158,15 @@ DEF PROCassemble
     .frameCounterNoOverflow
 
     ; ?tension = 160 + 95*COS(!frameCounter*255/1500)
-    LDA frameCounter : AND #13 : BNE skipPhase
-      ; INC phase
-      LDA frameCounter : STA numLO
-      _multiply16to16(numLO,#255,phase,numLO)
+    LDA frameCounter : CMP #11 : BNE skipPhase
+      INC phase
+      ; LDA frameCounter : STA numLO
+      ; _multiply16to16(numLO,#255,phase,numLO)
       LDX phase
       LDA sinCharge,X : STA postInvertA-1
       AND #1 : STA postInvertAsub-1
       LDA sinLookup,X
-      CLC : ADC #202   ; my guess at log 95
+      CLC : ADC #212   ; my guess at log 95
       BCS nonZero
         LDA #0 : JMP asdasd
       .nonZero
@@ -153,6 +176,7 @@ DEF PROCassemble
       .asdasd
       CLC : ADC #160
       STA tension
+      LDA #0 : STA frameCounter   ; bastardised frameCounter
     .skipPhase
 
     INC counterA
@@ -349,7 +373,7 @@ DEF PROCassemble
   ]
   NEXT I%
 
-  OSCLI "SAVE O.ROTA "+STR$~init+" "+STR$~P%+" "+STR$~init+" "+STR$~init
+  OSCLI "SAVE O.ROTA "+STR$~init+" "+STR$~P%+" "+STR$~init
 
   OSCLI "SPOOL I.ROTA"
   PRINT "start=&";~code;" end=&";~P%;" init=&";~init;" and stop=&";~stop

@@ -1,9 +1,11 @@
 ; Whirlpool effect
 ; Each dot will have two angles, theta (around), phi (out)
 
->PAGE=&3800
+>PAGE=&3000
+; >LOMEM=&4000
 >NEW
 
+; WARNING: If we compile in MODE 7 then we get the silly bug with crap appearing in the bottom right
 MODE 4
 
 ; Double height+width dots?
@@ -18,11 +20,12 @@ MODE 4
 ; #define MOVE_UPWARDS
 
 #include "asm_common.jpp"
-#include "sinLookup.dims"
-OSCLI "SAVE L.SIN "+STR$~sinLookup+" +100"
-#include "bitLookup.dims"
-#include "lookupLogs2.dims"
+; #include "sinLookup.dims"
+; OSCLI "SAVE L.SIN "+STR$~sinLookup+" +100"
+sinLookup = &1A00   ; to &1B00
+OSCLI "LOAD L.SIN "+STR$~sinLookup
 
+#include "lookupLogs2.dims"
 ; #include "lookupLogs2.calc"   ; Does not work - needs FNchop from phase.BAS
 fail%=0
 ON ERROR REPORT:PRINT " #";ERR;" at line ";ERL:fail%=1
@@ -38,10 +41,11 @@ maxParts%=128
 
 PROCassemble
 
-!framecounter=0 : starttime=TIME
+; !framecounter=0
+starttime=TIME
 
 CALL init
-*FX 14,4
+; *FX 14,4
 
 REPEAT
   i% = ?particleI
@@ -61,7 +65,7 @@ END
 
 DEF PROCassemble
 
-code=&4D00
+code=&2500
 scrTop=&5800 + (320-256)/8*8/2
 particleI=&80
 scrLocLO=&81 : scrLocHI=&82
@@ -73,25 +77,27 @@ logwr=&87   ; does not overlap, relabelled for clarity
 wx=&89 : wy=&8A
 #ifdef KEEP_INTERRUPTS
   alreadyRunning=&8B
-  ?alreadyRunning=0
 #endif
-numParts=&8C : ?numParts = maxParts%
+numParts=&8C
 particleJ=&8D : loopI=&7F
+oldVector=&70 ; and &71
 
 FOR I%=0 TO 2 STEP 2
 P%=code
 _resetLabelCounters
 [OPT I%
 
-.oldVector
-  EQUB 0 : EQUB 0
+; .oldVector
+  ; EQUB 0 : EQUB 0
+
+#include "bitLookup.asm"
 
 .partTheta
   _repeat(EQUB RND(256),maxParts%)
 
 .partPhi
   #ifdef MOVE_UPWARDS
-    _repeat(EQUB RND(256),maxParts%)   ; put more particles around the top than the stalk
+    _repeat(EQUB RND(256),maxParts%)
   #else
     _repeat(EQUB RND(256)*RND(1)*RND(1),maxParts%)   ; put more particles around the top than the stalk
   #endif
@@ -118,17 +124,41 @@ _resetLabelCounters
   EQUB 0 : EQUB 0
 
 .init
-  LDA #12 : JSR OSASCI   ; cls
+  LDA #22 : JSR OSASCI
+  LDA #4 : JSR OSASCI
+  ; hide cursor
+    LDA #23 : JSR OSASCI
+    LDA #1 : JSR OSASCI
+    LDA #0 : JSR OSASCI
+             JSR OSASCI
+             JSR OSASCI
+             JSR OSASCI
+             JSR OSASCI
+             JSR OSASCI
+             JSR OSASCI
+             JSR OSASCI
+  LDA #maxParts% : STA numParts
   LDX #0 : STX particleI
   .initLoop
     .spawnParticle
       ; EOR &FE64 : STA partTheta,X
       ; EOR &FE65 : AND #63 : STA partPhi,X
       JSR cacheParticleData
+      LDX particleI : LDA #0
+      STA oldLocLO,X : STA oldLocHI,X
+      STA oldBit,X
   INC particleI : LDA particleI : CMP numParts : BNE initLoop
   LDA #0 : STA particleI
+           STA framecounter
+           STA framecounter+1
+           STA framecounter+2
+           STA framecounter+3
+  #ifdef KEEP_INTERRUPTS
+    LDA #0 : STA alreadyRunning
+  #endif
   .setupIntercept
     _interceptEvent(4,&220,oldVector,myEvent)
+  LDA #14 : LDX #4 : JSR &FFF4
 RTS
 
 .stop
@@ -354,7 +384,7 @@ RTS
 
 ]
 NEXT I%
-  OSCLI "SAVE O.WHIRL "+STR$~init+" "+STR$~P%+" "+STR$~init+" "+STR$~init
+  OSCLI "SAVE O.WHIRL "+STR$~code+" "+STR$~P%+" "+STR$~init
   OSCLI "SPOOL I.WHIRL"
   PRINT "start=&";~code;" end=&";~P%;" init=&";~init;" and stop=&";~stop
   OSCLI "CLOSE"
