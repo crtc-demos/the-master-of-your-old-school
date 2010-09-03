@@ -31,7 +31,7 @@ DEF PROCassemble
     _oscli(loadphase)
     _oscli(loadwhirl)
 
-    JSR &0E0F   ; page in tune data
+    ; JSR &0E0F   ; page in tune data
     JSR &2337   ; start sierpa
 
     .contSierpa
@@ -72,7 +72,7 @@ DEF PROCassemble
     EQUS "LOAD O.SIERPA" : EQUB 13
 
   .loadrota
-    EQUS "LOAD L.ROTA" : EQUB 13
+    EQUS "LOAD O.ROTA" : EQUB 13
 
   .loadphase
     EQUS "LOAD O.PHASE" : EQUB 13
