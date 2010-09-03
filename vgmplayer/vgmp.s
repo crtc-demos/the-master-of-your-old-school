@@ -113,13 +113,6 @@ player_event
 	cmp #4
 	bne done
 
-	inc frame_no
-	lda frame_no
-	.(
-	bne no_hi
-	inc frame_no + 1
-no_hi:	.)
-
 	jmp consume_bytes_irq
 done
 	jmp (old_eventv)
@@ -235,6 +228,14 @@ not_zero:
 
 poll_player:
 	.(
+
+	; increment frame counter. Used for various timing thingies.
+	inc frame_no
+	lda frame_no
+	.(
+	bne no_hi
+	inc frame_no + 1
+no_hi:	.)
 
 	; if we haven't caught up with the tune yet, wait a bit more.
 	@cmpt_geu track_time, real_time, wait_for_frame
