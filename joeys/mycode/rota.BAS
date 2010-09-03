@@ -7,7 +7,7 @@ MODE 7
 
 #define INTERPOLATE
 
-#define KEEP_INTERRUPTS
+; #define KEEP_INTERRUPTS
 
 #define ASSEMBLY
 #include "sinLookup.dims"
@@ -144,6 +144,8 @@ DEF PROCassemble
   [OPT I%
 
   .event
+
+    JSR &E06
 
     #ifdef KEEP_INTERRUPTS
       LDA alreadyRunning : CMP #0 : BEQ okEvent
