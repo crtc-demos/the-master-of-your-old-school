@@ -61,6 +61,8 @@ entry:
 	jsr setmode
 	;jsr setorigin
 	jsr select_sram
+	jsr clear_sram
+	jsr kill_sound
 	jsr load_sqtab
 	jsr load_logtab
 	jsr load_exptab
@@ -79,6 +81,66 @@ setmode:
 	pla
 	jsr oswrch
 	rts
+
+	.context clear_sram
+	.var2 ptr
+clear_sram
+	lda #<$8000
+	sta %ptr
+	lda #>$8000
+	sta %ptr + 1
+	
+outer_loop
+	ldy #0
+	lda #0
+loop
+	sta (%ptr), y
+	iny
+	bne loop
+	
+	inc %ptr + 1
+	lda %ptr + 1
+	cmp #$c0
+	bcc outer_loop
+	
+	rts
+	.ctxend
+
+kill_sound:
+	.(
+	; tone 3 volume
+	lda #0b10011111
+	jsr write_sound_byte
+	; tone 2 volume
+	lda #0b10111111
+	jsr write_sound_byte
+	; tone 1 volume
+	lda #0b11011111
+	jsr write_sound_byte
+	; noise volume
+	lda #0b11111111
+	jsr write_sound_byte
+	rts
+	
+write_sound_byte
+	sei
+	ldy #255
+	sty $fe43
+
+	sta $fe41
+	stz $fe40
+	nop
+	nop
+	nop
+	nop
+	nop
+	nop
+	lda #$08
+	sta $fe40
+	
+	cli
+	rts
+	.)
 
 centre:
 	.byte 29

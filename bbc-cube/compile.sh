@@ -1,4 +1,6 @@
 #!/bin/sh
+set -x
+set -e
 #xa mult.a65 -l mult.l -o mult
 pasta -a cube.s -o mult
 #ophis -65c02 flim.oph flim

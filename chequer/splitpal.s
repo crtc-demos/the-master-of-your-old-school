@@ -29,13 +29,21 @@
 	
 busy_wait
 	lda framectr + 1
-	cmp #255
+	cmp #2
 	bcc busy_wait
 	
 	jsr disable_effect
+	jsr player_unselect_sram
+
+	ldx #<next_effect
+	ldy #>next_effect
+	jsr oscli 
 
         rts
         .)
+
+next_effect
+	.asc "mult",13
 
 	.include "../lib/mos.s"
 	.include "../lib/load.s"
