@@ -1,10 +1,11 @@
 ; Whirlpool effect
 ; Each dot will have two angles, theta (around), phi (out)
 
->PAGE=&3800
+>PAGE=&3000
+>LOMEM=&4000
 >NEW
 
-MODE 4
+MODE 7
 
 ; Double height+width dots?
 ; #define DOUBLE
@@ -41,7 +42,7 @@ PROCassemble
 !framecounter=0 : starttime=TIME
 
 CALL init
-*FX 14,4
+; *FX 14,4
 
 REPEAT
   i% = ?particleI
@@ -61,7 +62,7 @@ END
 
 DEF PROCassemble
 
-code=&4D00
+code=&2500
 scrTop=&5800 + (320-256)/8*8/2
 particleI=&80
 scrLocLO=&81 : scrLocHI=&82
@@ -91,7 +92,7 @@ _resetLabelCounters
 
 .partPhi
   #ifdef MOVE_UPWARDS
-    _repeat(EQUB RND(256),maxParts%)   ; put more particles around the top than the stalk
+    _repeat(EQUB RND(256),maxParts%)
   #else
     _repeat(EQUB RND(256)*RND(1)*RND(1),maxParts%)   ; put more particles around the top than the stalk
   #endif
@@ -118,7 +119,19 @@ _resetLabelCounters
   EQUB 0 : EQUB 0
 
 .init
-  LDA #12 : JSR OSASCI   ; cls
+  LDA #22 : JSR OSASCI
+  LDA #4 : JSR OSASCI
+  ; hide cursor
+    ; LDA #23 : JSR OSASCI
+    ; LDA #1 : JSR OSASCI
+    ; LDA #0 : JSR OSASCI
+             ; JSR OSASCI
+             ; JSR OSASCI
+             ; JSR OSASCI
+             ; JSR OSASCI
+             ; JSR OSASCI
+             ; JSR OSASCI
+             ; JSR OSASCI
   LDX #0 : STX particleI
   .initLoop
     .spawnParticle
@@ -126,9 +139,15 @@ _resetLabelCounters
       ; EOR &FE65 : AND #63 : STA partPhi,X
       JSR cacheParticleData
   INC particleI : LDA particleI : CMP numParts : BNE initLoop
+  LDA #0 : LDX #0
+  ; .clearOldLoop
+    ; STA oldLocLO,X : STA oldLocHI,X
+    ; STA oldBit,X
+    ; INX : BNE clearOldLoop
   LDA #0 : STA particleI
   .setupIntercept
     _interceptEvent(4,&220,oldVector,myEvent)
+  LDA #14 : LDX #4 : JSR &FFF4
 RTS
 
 .stop
@@ -354,7 +373,7 @@ RTS
 
 ]
 NEXT I%
-  OSCLI "SAVE O.WHIRL "+STR$~init+" "+STR$~P%+" "+STR$~init+" "+STR$~init
+  OSCLI "SAVE O.WHIRL "+STR$~init+" "+STR$~P%+" "+STR$~init
   OSCLI "SPOOL I.WHIRL"
   PRINT "start=&";~code;" end=&";~P%;" init=&";~init;" and stop=&";~stop
   OSCLI "CLOSE"

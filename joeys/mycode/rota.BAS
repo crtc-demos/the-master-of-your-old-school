@@ -349,7 +349,7 @@ DEF PROCassemble
   ]
   NEXT I%
 
-  OSCLI "SAVE O.ROTA "+STR$~init+" "+STR$~P%+" "+STR$~init+" "+STR$~init
+  OSCLI "SAVE O.ROTA "+STR$~init+" "+STR$~P%+" "+STR$~init
 
   OSCLI "SPOOL I.ROTA"
   PRINT "start=&";~code;" end=&";~P%;" init=&";~init;" and stop=&";~stop

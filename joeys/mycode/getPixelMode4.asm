@@ -1,4 +1,3 @@
-  ; @requires getPixelMode4.dims telexelBits.dims
   ; TODO: We could require getPixelMode4.dims to provides a pre-defined lookup of
   ; screen line start locations
 

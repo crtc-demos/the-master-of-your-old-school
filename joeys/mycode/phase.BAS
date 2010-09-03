@@ -151,7 +151,7 @@ CLS
 
 	PROCinitWaves
 
-  OSCLI "SAVE O.PHASE "+STR$~code+" "+STR$~P%+" "+STR$~init+" "+STR$~init
+  OSCLI "SAVE O.PHASE "+STR$~code+" "+STR$~P%+" "+STR$~init
 
   OSCLI "SPOOL I.PHASE"
   PRINT "start=&";~code;" end=&";~P%;" init=&";~init;" and stop=&";~stop
