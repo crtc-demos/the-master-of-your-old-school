@@ -66,8 +66,31 @@ entry:
 	jsr test_render_offscreen
 	;jsr test_render
 	jsr select_old_lang
+	
+	lda #7
+	jsr mos_setmode
+	
+	ldx #0
+final
+	lda final_part,x
+	cmp #255
+	beq done
+	jsr oswrch
+	inx
+	bra final
+done
+	ldx #<basic
+	ldy #>basic
+	jsr oscli
+	
 	rts
 	.)
+
+final_part
+	.asc "Code: puppeh\r\nCode: joey\r\nMusix: insectecutor\r\n\nSundown 2010\r\n\n",255
+
+basic
+	.asc "basic",13
 
 	.context clear_sram
 	.var2 ptr
@@ -1396,6 +1419,9 @@ pixmask:
 
 	; .include "test-render.s"
 
+done_frames
+	.byte 0
+
 	.context test_render_offscreen
 	.var first
 
@@ -1406,6 +1432,7 @@ test_render_offscreen:
 	.protect %draw_offscreen_object.buffer
 
 	stz %draw_offscreen_object.buffer
+	stz done_frames
 
 test_render_loop:
 	lda #<transformation
@@ -1451,7 +1478,11 @@ test_render_loop:
 	sta %draw_offscreen_object.buffer
 
 	inc rotation_amount
-	jmp test_render_loop
+	
+	inc done_frames
+	lda done_frames
+	cmp #150
+	bcc test_render_loop
 	
 	rts
 	.ctxend
