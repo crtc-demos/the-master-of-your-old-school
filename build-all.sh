@@ -69,8 +69,12 @@ pushd end-screen
 ./compile.sh
 popd
 
+pushd startup
+./compile.sh
+popd
+
 # Get joey's bits...
-for x in O.PHASE O.ROTA O.SIERPA O.WHIRL L.SIN L.LOGS; do
+for x in O.PHASE O.ROTA O.SIERPA O.WHIRL O.MAIN L.SIN L.LOGS; do
   cp "joeys/bin/$x" "joeys/bin/$x.inf" "$OUTPUTDISK"
 done
 

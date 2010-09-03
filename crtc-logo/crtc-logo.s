@@ -110,7 +110,8 @@ lots_of_times:
 	rts
 
 next_effect
-	.asc "splitp",13
+	.asc "run O.MAIN",13
+;	.asc "splitp",13
 
 number_of_times:
 	.byte 0
