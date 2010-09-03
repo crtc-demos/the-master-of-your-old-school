@@ -187,6 +187,8 @@ RTS
 
 .myEvent
 
+    JSR &0E06
+
 #ifdef KEEP_INTERRUPTS
   LDA alreadyRunning : CMP #1 : BNE doEvent
   JMP skipEvent
