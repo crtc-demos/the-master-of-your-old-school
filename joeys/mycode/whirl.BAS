@@ -5,7 +5,8 @@
 ; >LOMEM=&4000
 >NEW
 
-MODE 7
+; WARNING: If we compile in MODE 7 then we get the silly bug with crap appearing in the bottom right
+MODE 4
 
 ; Double height+width dots?
 ; #define DOUBLE
@@ -19,8 +20,10 @@ MODE 7
 ; #define MOVE_UPWARDS
 
 #include "asm_common.jpp"
-#include "sinLookup.dims"
+; #include "sinLookup.dims"
 ; OSCLI "SAVE L.SIN "+STR$~sinLookup+" +100"
+sinLookup = &1A00   ; to &1B00
+OSCLI "LOAD L.SIN "+STR$~sinLookup
 
 #include "lookupLogs2.dims"
 ; #include "lookupLogs2.calc"   ; Does not work - needs FNchop from phase.BAS
@@ -145,12 +148,6 @@ _resetLabelCounters
       STA oldLocLO,X : STA oldLocHI,X
       STA oldBit,X
   INC particleI : LDA particleI : CMP numParts : BNE initLoop
-  ; LDA #0 : LDX numParts
-  ; .clearOldLoop
-    ; DEX
-    ; STA oldLocLO,X : STA oldLocHI,X
-    ; STA oldBit,X
-    ; BNE clearOldLoop
   LDA #0 : STA particleI
            STA framecounter
            STA framecounter+1
@@ -387,7 +384,7 @@ RTS
 
 ]
 NEXT I%
-  OSCLI "SAVE O.WHIRL "+STR$~init+" "+STR$~P%+" "+STR$~init
+  OSCLI "SAVE O.WHIRL "+STR$~code+" "+STR$~P%+" "+STR$~init
   OSCLI "SPOOL I.WHIRL"
   PRINT "start=&";~code;" end=&";~P%;" init=&";~init;" and stop=&";~stop
   OSCLI "CLOSE"
