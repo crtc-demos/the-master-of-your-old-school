@@ -501,7 +501,7 @@ loop_point:
 	.word 0
 
 trackname:
-	.asc "music2",13
+	.asc "fixed",13
 
 from_irq:
 	.byte 0

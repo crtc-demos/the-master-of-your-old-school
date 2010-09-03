@@ -2,4 +2,4 @@
 set -e
 set -x
 pasta -a vgmp.s -o vgmp
-cp vgmp vgmp.inf track track.inf music2 music2.inf "$OUTPUTDISK"
+cp vgmp vgmp.inf fixed fixed.inf "$OUTPUTDISK"
