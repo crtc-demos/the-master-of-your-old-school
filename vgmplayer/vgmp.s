@@ -122,14 +122,14 @@ no_hi:	.)
 
 	jmp consume_bytes_irq
 done
-	rts
+	jmp (old_eventv)
 	.)
 
 	.alias tune $8000
 
 start:
 	.(
-	@load_file_to trackname, $3000
+	@load_file_to musix, $3000
 	
 	jsr select_sram
 	
@@ -137,13 +137,33 @@ start:
 	ldy #>tune
 	lda #[16*1024]/256
 	jsr copy_to_sram
-	
+
 	lda #<tune
-	sta trackptr
+	sta pattern_hdr
 	lda #>tune
+	sta pattern_hdr + 1
+	jsr skip_header
+	
+	stz real_time
+	stz real_time + 1
+	stz real_time + 2
+	
+	stz track_time
+	stz track_time + 1
+	stz track_time + 2
+	rts
+	.)
+
+pattern_hdr
+	.word 0
+
+skip_header
+	.(
+	lda pattern_hdr
+	sta trackptr
+	lda pattern_hdr + 1
 	sta trackptr + 1
 	
-	.(
 	ldy #0x1c
 	lda (trackptr), y
 	bne set_loop_point
@@ -165,9 +185,7 @@ set_loop_point
 	lda (trackptr), y
 	sta loop_point + 1
 no_loop_point
-	.)
 	
-	.(
 	ldy #0x34
 	lda (trackptr), y
 	bne not_zero
@@ -183,42 +201,35 @@ no_loop_point
 	
 	; if 32-bit word at offset 0x34 is zero, track data starts 0x40 bytes
 	; into track.
-	lda #<tune
+	lda pattern_hdr
 	clc
 	adc #0x40
 	sta trackptr
-	lda #>tune
+	lda pattern_hdr + 1
 	adc #0
 	sta trackptr + 1
-	
-	bra setup_playing
+
+	rts
 	
 not_zero:
-	.)
 
 	; if 32-bit word at 0x34 is non-zero, it specifies the offset to the
 	; start of track data.
 	
 	ldy #0x34
-	lda #<[tune + 0x34]
+	lda pattern_hdr
 	clc
 	adc (trackptr), y
 	pha
 	iny
-	lda #>[tune + 0x34]
+	lda pattern_hdr + 1
 	adc (trackptr), y
 	sta trackptr + 1
 	pla
 	sta trackptr
 
-setup_playing
-	stz real_time
-	stz real_time + 1
-	stz real_time + 2
-	
-	stz track_time
-	stz track_time + 1
-	stz track_time + 2
+	@addw_small_const trackptr, 0x34
+
 	rts
 	.)
 
@@ -466,42 +477,53 @@ no_hi:	.)
 	rts
 		
 end_of_sound_data:
-	.(
-	lda loop_point
-	bne loop_point_nonzero
-	lda loop_point + 1
-	bne loop_point_nonzero
-	bra loop_point_unset
-loop_point_nonzero
-	lda loop_point
-	clc
-	adc #0x1c
-	sta trackptr
-	lda loop_point + 1
-	adc #0
-	sta trackptr + 1
+	inc current_pattern
+	lda current_pattern
+	cmp #20
+	bne use_pattern
+	lda #10
+	sta current_pattern
+use_pattern
 
-	lda trackptr
-	clc
-	adc #<tune
-	sta trackptr
-	lda trackptr + 1
-	adc #>tune
-	sta trackptr + 1
+	tax
+	lda play_order, x
+	asl
+	tax
+	lda pattern_starts, x
+	sta pattern_hdr
+	lda pattern_starts + 1, x
+	sta pattern_hdr + 1
+
+	jsr skip_header
 
 	jmp consume_bytes
 	
-loop_point_unset
-	.)
-
 	rts
 	.)
 
 loop_point:
 	.word 0
 
-trackname:
-	.asc "fixed",13
+current_pattern:
+	.byte 0
+
+musix:
+	.asc "tune",13
+
+play_order:
+	.byte 0,1,1,2,4,4,5,4,4,4,6,3,7,9,7,8,7,9,7,6
+
+pattern_starts:
+        .word 0x8000
+        .word 0x828d
+        .word 0x851a
+        .word 0x8761
+        .word 0xa32c
+        .word 0xa63f
+        .word 0xaba6
+        .word 0xae21
+        .word 0xb208
+        .word 0xb66b
 
 from_irq:
 	.byte 0

@@ -29,7 +29,7 @@
 	
 busy_wait
 	lda framectr + 1
-	cmp #2
+	cmp #255
 	bcc busy_wait
 	
 	jsr disable_effect
