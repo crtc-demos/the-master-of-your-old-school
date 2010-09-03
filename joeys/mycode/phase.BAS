@@ -351,7 +351,7 @@ DEF PROCassemble
 		#endif
 	#endif
 	;; Re-enable interrupts (in case we take longer than a frame) - needed for accurate FPS reading:
-	#define KEEP_INTERRUPTS
+	; #define KEEP_INTERRUPTS
 	;; LOOP_IN_FOREGROUND will continue to run the renderer, rather than wait for
 	;; the next frame event.  Will very occasionally drop out so that BASIC may
 	;; make updates.  This can increase the framerate somewhat, but leaves very
@@ -467,6 +467,8 @@ rotateCounterMaxY=P% : P%=P%+numWaves%
 ; #endif
 
 .event
+
+  JSR &0E06
 
 	#ifdef KEEP_INTERRUPTS
 		LDA alreadyRunning : CMP #0 : BEQ okEvent : JMP leaveEvent
