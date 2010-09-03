@@ -65,6 +65,15 @@ pushd vgmplayer
 ./compile.sh
 popd
 
+pushd end-screen
+./compile.sh
+popd
+
+# Get joey's bits...
+for x in O.PHASE O.ROTA O.SIERPA O.WHIRL L.SIN L.LOGS; do
+  cp "joeys/bin/$x" "joeys/bin/$x.inf" "$OUTPUTDISK"
+done
+
 bbcim -new demodisk.ssd
 pushd tmpdisk
 bbcim -a ../demodisk.ssd *
