@@ -146,6 +146,12 @@ DEF PROCassemble
   .event
 
     JSR &E06
+    LDA &29 : CMP #9 : BCC keepGoing
+      JSR &0E12
+      JSR stop
+      JSR stop
+      JSR &0E12
+    .keepGoing
 
     #ifdef KEEP_INTERRUPTS
       LDA alreadyRunning : CMP #0 : BEQ okEvent
