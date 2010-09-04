@@ -83,7 +83,7 @@ done
 	.)
 
 final_part
-	.asc "Code: puppeh\r\nCode: joey\r\nMusix: insectecutor\r\n\nSundown 2010\r\n\n",255
+	.asc "Code: puppeh\r\nCode: joey\r\nMusix: insectecutor\r\n\nSundown 2010\r\n\nThanks for watching!\r\n\n",255
 
 basic
 	.asc "basic",13
@@ -1407,7 +1407,7 @@ plot_xpoint_y:
 	.ctxend
 
 rotation_amount:
-	.byte 0
+	.byte 1
 
 pixmask:
 	.byte 0b00101010
@@ -1473,6 +1473,7 @@ test_render_loop:
 	eor #1
 	sta %draw_offscreen_object.buffer
 
+	inc rotation_amount
 	inc rotation_amount
 	
 	inc done_frames
