@@ -102,6 +102,8 @@ vsync_event_disable
 	lda old_eventv + 1
 	sta $221
 	
+	cli
+	
 	lda #13
 	ldx #4
 	jsr osbyte
@@ -236,6 +238,9 @@ poll_player:
 	bne no_hi
 	inc frame_no + 1
 no_hi:	.)
+
+	; ***** just for testing: return immediately. *****
+	;rts
 
 	; if we haven't caught up with the tune yet, wait a bit more.
 	@cmpt_geu track_time, real_time, wait_for_frame
