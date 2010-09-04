@@ -37,13 +37,13 @@ DEF PROCassemble
     .contSierpa
     LDA &29 : CMP #5 : BCC contSierpa
 
-    JSR &23B1   ; stop sierpa
+    JSR &23AB   ; stop sierpa
     JSR &2C00   ; start rota
 
     .cont_rota
     LDA &29 : CMP #8 : BCC cont_rota
 
-    JSR &2C7DB  ; stop rota
+    JSR &2C7B  ; stop rota
     JSR &1B00   ; start phase
 
     .cont_phase
