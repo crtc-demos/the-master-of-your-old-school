@@ -139,8 +139,10 @@ start:
 	sta pattern_hdr + 1
 	jsr skip_header
 	
-	stz real_time
-	stz real_time + 1
+	lda #<882
+	sta real_time
+	lda #>882
+	sta real_time + 1
 	stz real_time + 2
 	
 	stz track_time
