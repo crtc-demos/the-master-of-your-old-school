@@ -92,7 +92,7 @@ DEF PROCassemble
 #define PLOT_TELEXEL_SKIPIFSET
 #define UNPLOT_TELEXEL_INCREMENTALLY
 #define UNPLOT_TELEXEL_XOR
-#define KEEP_INTERRUPTS
+; #define KEEP_INTERRUPTS
   #ifdef KEEP_INTERRUPTS
     alreadyRunning=&80
   #endif
