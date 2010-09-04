@@ -302,8 +302,9 @@ DEF PROCassemble
         TXA : CLC : ADC #64 : TAX
         LDA sinLookup,X : _divide_by_16 : STA cos
         ; cos might be negative - check the quadrant
-        TXA : ROL A : ROL A : ROL A : AND #3 : TAX
-        LDA sinSgnLookup,X : EOR cos : STA cos
+        ; TXA : ROL A : ROL A : ROL A : AND #3 : TAX
+        ; LDA sinSgnLookup,X : EOR cos : STA cos
+        LDA sinCharge,X : EOR cos : STA cos
 
         ; calculate firstx,secondx,thirdx
         LDA #21 : SEC : SBC sin : STA firstx
