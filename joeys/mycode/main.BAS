@@ -29,7 +29,7 @@ DEF PROCassemble
     _oscli(loadsierpa)
     _oscli(loadrota)
     _oscli(loadphase)
-    _oscli(loadwhirl)
+    ; _oscli(loadwhirl)
 
     JSR &0E0F   ; page in tune data
     JSR &2337   ; start sierpa
@@ -47,15 +47,15 @@ DEF PROCassemble
     JSR &1B00   ; start phase
 
     .cont_phase
-    LDA &29 : CMP #11 : BCC cont_phase
+    LDA &29 : CMP #13 : BCC cont_phase
 
     JSR &1B72   ; stop phase
-    JSR &290C   ; start whirl
+    ; JSR &290C   ; start whirl
 
-    .cont_whirl
-    LDA &29 : CMP #16 : BCC cont_whirl
+    ; .cont_whirl
+    ; LDA &29 : CMP #16 : BCC cont_whirl
 
-    JSR &2999   ; stop whirl
+    ; JSR &2999   ; stop whirl
     JSR &0E12   ; page out tune data
 
     _oscli(runsplitp)
