@@ -31,7 +31,7 @@ DEF PROCassemble
     _oscli(loadphase)
     _oscli(loadwhirl)
 
-    ; JSR &0E0F   ; page in tune data
+    JSR &0E0F   ; page in tune data
     JSR &2337   ; start sierpa
 
     .contSierpa
