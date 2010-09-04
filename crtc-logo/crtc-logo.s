@@ -12,8 +12,6 @@ entry:
 	lda #12
 	jsr oswrch
 	
-	jsr player_vsync_event_enable
-	
 	jsr init_irq
 	
 	@load_file_to blank_rle, end_of_program
@@ -59,6 +57,8 @@ entry:
 
 	@load_file_via t2c_rle, t2c_ptr
 
+	jsr player_vsync_event_enable
+	
 	jsr wait_a_while
 
 	stz number_of_times
