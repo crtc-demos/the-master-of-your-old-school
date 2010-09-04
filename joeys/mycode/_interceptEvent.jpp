@@ -35,8 +35,8 @@ LDA _HASH _eventNum
 ; STA &FC
 .interceptEventOut
 PLP
-JMP (_oldVector)
-; RTS
+; JMP (_oldVector)
+RTS
 
 .interceptEventDoneInit
 
