@@ -50,12 +50,12 @@ DEF PROCassemble
     ; LDA &29 : CMP #13 : BCC cont_phase
 ; 
     ; JSR &1B72   ; stop phase
-    ; JSR &290C   ; start whirl
-; 
-    ; .cont_whirl
-    ; LDA &29 : CMP #16 : BCC cont_whirl
-; 
-    ; JSR &2999   ; stop whirl
+    JSR &290C   ; start whirl
+
+    .cont_whirl
+    LDA &29 : CMP #16 : BCC cont_whirl
+
+    JSR &2999   ; stop whirl
     JSR &0E12   ; page out tune data
 
     _oscli(runsplitp)
