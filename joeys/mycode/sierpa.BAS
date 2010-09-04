@@ -20,7 +20,8 @@ MODE 7
 :
 #include "teletext_bits.dim"
 :
-plotLoops% = 255
+; plotLoops% = 255
+plotLoops% = 80
 rotationSlowdown% = 1 + 0
 trailLen% = 510
 REM It appears the whole fractal takes around 900 pixels.  Well it might cover
@@ -92,7 +93,7 @@ DEF PROCassemble
 #define PLOT_TELEXEL_SKIPIFSET
 #define UNPLOT_TELEXEL_INCREMENTALLY
 #define UNPLOT_TELEXEL_XOR
-#define KEEP_INTERRUPTS
+; #define KEEP_INTERRUPTS
   #ifdef KEEP_INTERRUPTS
     alreadyRunning=&80
   #endif
