@@ -83,7 +83,7 @@ done
 	.)
 
 final_part
-	.asc "Code: puppeh\r\nCode: joey\r\nMusix: insectecutor\r\n\nSundown 2010\r\n\nThanks for watching!\r\n\n",255
+	.asc "The Master of Your Old School\r\n\nCode: puppeh\r\nCode: joey\r\nMusix: insectecutor\r\n\nSundown 2010\r\n\nThanks for watching!\r\n\n",255
 
 basic
 	.asc "basic",13
