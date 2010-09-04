@@ -24,37 +24,37 @@ DEF PROCassemble
 
   .init
 
-    _oscli(loadlogs)
-    _oscli(loadsin)
-    _oscli(loadsierpa)
-    _oscli(loadrota)
-    _oscli(loadphase)
+    ; _oscli(loadlogs)
+    ; _oscli(loadsin)
+    ; _oscli(loadsierpa)
+    ; _oscli(loadrota)
+    ; _oscli(loadphase)
     ; _oscli(loadwhirl)
 
     JSR &0E0F   ; page in tune data
-    JSR &2337   ; start sierpa
-
-    .contSierpa
-    LDA &29 : CMP #5 : BCC contSierpa
-
-    JSR &23AB   ; stop sierpa
-    JSR &2C00   ; start rota
-
-    .cont_rota
-    LDA &29 : CMP #8 : BCC cont_rota
-
-    JSR &2C7B  ; stop rota
-    JSR &1B00   ; start phase
-
-    .cont_phase
-    LDA &29 : CMP #13 : BCC cont_phase
-
-    JSR &1B72   ; stop phase
+    ; JSR &2337   ; start sierpa
+; 
+    ; .contSierpa
+    ; LDA &29 : CMP #5 : BCC contSierpa
+; 
+    ; JSR &23AB   ; stop sierpa
+    ; JSR &2C00   ; start rota
+; 
+    ; .cont_rota
+    ; LDA &29 : CMP #8 : BCC cont_rota
+; 
+    ; JSR &2C7B  ; stop rota
+    ; JSR &1B00   ; start phase
+; 
+    ; .cont_phase
+    ; LDA &29 : CMP #13 : BCC cont_phase
+; 
+    ; JSR &1B72   ; stop phase
     ; JSR &290C   ; start whirl
-
+; 
     ; .cont_whirl
     ; LDA &29 : CMP #16 : BCC cont_whirl
-
+; 
     ; JSR &2999   ; stop whirl
     JSR &0E12   ; page out tune data
 
