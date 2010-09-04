@@ -193,8 +193,11 @@ DEF PROCassemble
       ; We rotate the top of the whirl by 1/16th of a sin lookup in rotation
       .moveTop
         ; First prepare sine quadrant:
-          LDA rotation : ROL A : ROL A : ROL A : AND #3
-          TAX : LDA sinSgnLookup,X : STA postSignA-1
+          ;; sinSgnLookup is not loaded !
+          ; LDA rotation : ROL A : ROL A : ROL A : AND #3
+          ; TAX : LDA sinSgnLookup,X : STA postSignA-1
+          LDA rotation
+          TAX : LDA sinCharge,X : STA postSignA-1
         LDX rotation
         LDA sinLookup,X
         ; divide by 16, otherwise too fast!

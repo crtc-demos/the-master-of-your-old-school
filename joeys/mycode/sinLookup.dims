@@ -20,6 +20,8 @@ NEXT
 
 #ifdef ASSEMBLY
 
+  ;; TODO: THESE AREN'T SAVED TO LOOKUP FILE!
+
   DIM sinSgnLookup 4
   sinSgnLookup?0=0
   sinSgnLookup?1=0
