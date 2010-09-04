@@ -11,7 +11,7 @@ MODE 4
 ; Double height+width dots?
 ; #define DOUBLE
 
-; #define KEEP_INTERRUPTS
+#define KEEP_INTERRUPTS
 ; #define LOOP_IN_FOREGROUND
 #define USE_NEW_GETPIXEL
 #define KEEP_OLD_LOCS

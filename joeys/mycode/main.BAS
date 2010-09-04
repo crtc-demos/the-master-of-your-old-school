@@ -24,12 +24,12 @@ DEF PROCassemble
 
   .init
 
-    ; _oscli(loadlogs)
-    ; _oscli(loadsin)
-    ; _oscli(loadsierpa)
-    ; _oscli(loadrota)
-    ; _oscli(loadphase)
-    ; _oscli(loadwhirl)
+    _oscli(loadlogs)
+    _oscli(loadsin)
+    _oscli(loadsierpa)
+    _oscli(loadrota)
+    _oscli(loadphase)
+    _oscli(loadwhirl)
 
     JSR &0E0F   ; page in tune data
     ; JSR &2337   ; start sierpa
