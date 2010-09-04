@@ -92,7 +92,7 @@ DEF PROCassemble
 #define PLOT_TELEXEL_SKIPIFSET
 #define UNPLOT_TELEXEL_INCREMENTALLY
 #define UNPLOT_TELEXEL_XOR
-#define KEEP_INTERRUPTS
+; #define KEEP_INTERRUPTS
   #ifdef KEEP_INTERRUPTS
     alreadyRunning=&80
   #endif
@@ -171,6 +171,7 @@ DEF PROCassemble
   _removeEvent(4,&220,oldEvent,event)
   RTS
   .event
+    JSR &0E06
   #ifdef KEEP_INTERRUPTS
     LDA alreadyRunning : CMP #0 : BEQ okEvent : JMP leaveEvent
     .okEvent
@@ -192,6 +193,8 @@ DEF PROCassemble
     LDA corneryLookup,X : STA corners+5
   .noRotate
   .main
+
+  JSR setupColors
 
   #ifndef UNPLOT_TELEXEL_INCREMENTALLY
     ; Clear the last frame
@@ -242,15 +245,14 @@ DEF PROCassemble
   .leaveEvent
 RTS
 
-  #define currentColor _HASH (144+4)
   .setupColors
-    LDA #SCRTOP MOD 256 : STA plotLoc
-    LDA #SCRTOP DIV 256 : STA plotLoc+1
+    LDA #&00 : STA plotLoc
+    LDA #&7C : STA plotLoc+1
     LDX #25
     LDY #0
     .setupColorsLoop
       DEX : BMI setupColorsLoopEnd
-      LDA currentColor : STA (plotLoc),Y
+      LDA #148 : STA (plotLoc),Y
       ; INY
       ; LDA #157 : STA (plotLoc),Y
       ; DEY

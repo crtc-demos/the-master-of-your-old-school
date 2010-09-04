@@ -468,6 +468,8 @@ rotateCounterMaxY=P% : P%=P%+numWaves%
 
 .event
 
+  JSR &0E06
+
 	#ifdef KEEP_INTERRUPTS
 		LDA alreadyRunning : CMP #0 : BEQ okEvent : JMP leaveEvent
 		.okEvent
