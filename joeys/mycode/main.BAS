@@ -32,12 +32,12 @@ DEF PROCassemble
     _oscli(loadwhirl)
 
     JSR &0E0F   ; page in tune data
-    ; JSR &2337   ; start sierpa
-; 
-    ; .contSierpa
-    ; LDA &29 : CMP #5 : BCC contSierpa
-; 
-    ; JSR &23AB   ; stop sierpa
+    JSR &2337   ; start sierpa
+
+    .contSierpa
+    LDA &29 : CMP #5 : BCC contSierpa
+
+    JSR &23AB   ; stop sierpa
     ; JSR &2C00   ; start rota
 ; 
     ; .cont_rota
