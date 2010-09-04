@@ -44,12 +44,12 @@ DEF PROCassemble
     ; LDA &29 : CMP #8 : BCC cont_rota
 ; 
     ; JSR &2C7B  ; stop rota
-    ; JSR &1B00   ; start phase
-; 
-    ; .cont_phase
-    ; LDA &29 : CMP #13 : BCC cont_phase
-; 
-    ; JSR &1B72   ; stop phase
+    JSR &1B00   ; start phase
+
+    .cont_phase
+    LDA &29 : CMP #13 : BCC cont_phase
+
+    JSR &1B72   ; stop phase
     JSR &290C   ; start whirl
 
     .cont_whirl
