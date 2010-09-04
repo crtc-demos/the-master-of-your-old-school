@@ -55,7 +55,7 @@ DEF PROCassemble
     .cont_whirl
     LDA &29 : CMP #16 : BCC cont_whirl
 
-    JSR &299D   ; stop whirl
+    JSR &2999   ; stop whirl
     JSR &0E12   ; page out tune data
 
     _oscli(runsplitp)
