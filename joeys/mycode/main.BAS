@@ -43,19 +43,19 @@ DEF PROCassemble
     .cont_rota
     LDA &29 : CMP #8 : BCC cont_rota
 
-    JSR &2C7D   ; stop rota
+    JSR &2C7DB  ; stop rota
     JSR &1B00   ; start phase
 
     .cont_phase
     LDA &29 : CMP #11 : BCC cont_phase
 
-    JSR &1B4C   ; stop phase
+    JSR &1B72   ; stop phase
     JSR &290C   ; start whirl
 
     .cont_whirl
     LDA &29 : CMP #16 : BCC cont_whirl
 
-    JSR &299F   ; stop whirl
+    JSR &299D   ; stop whirl
     JSR &0E12   ; page out tune data
 
     _oscli(runsplitp)
