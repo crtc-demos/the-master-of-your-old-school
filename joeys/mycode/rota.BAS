@@ -17,7 +17,7 @@ OSCLI "SAVE L.SIN "+STR$~sinLookup+" +100"
 
 OSCLI "LOAD L.LOGS "+STR$~(lookupLog)
 
-maxLines% = 22
+maxLines% = 25
 
 ; DIM curRotList maxLines%
 
@@ -158,7 +158,7 @@ DEF PROCassemble
     .frameCounterNoOverflow
 
     ; ?tension = 160 + 95*COS(!frameCounter*255/1500)
-    LDA frameCounter : CMP #11 : BNE skipPhase
+    LDA frameCounter : CMP #9 : BNE skipPhase
       INC phase
       ; LDA frameCounter : STA numLO
       ; _multiply16to16(numLO,#255,phase,numLO)
@@ -210,7 +210,7 @@ DEF PROCassemble
 
     LDY #0 : STY line
     LDA #&7C : STA lineStart+1
-    LDA #120 : STA lineStart
+    LDA #&00 : STA lineStart
     .loopLines
 
       ; LDY line
