@@ -1,0 +1,22 @@
+10000 MODE 7
+10020 left%=0
+10040 right%=39
+10060 *FX 11,1
+10080 *FX 12,1
+10100 X%=19
+10120 REPEAT
+10140   PRINTTAB(left%,0);">"
+10160   PRINTTAB(right%,0);"<"
+10180   PRINTTAB(X%,24);"^";
+10200   REM KEY$=INKEY$(0)
+10220   IF INKEY(-98) THEN X%=X%-1
+10240   IF INKEY(-67) THEN X%=X%+1
+10260   IF RND(29)=1 THEN left%=left%+1 : IF right%-left%<4 THEN right%=right%+1
+10280   IF RND(29)=1 THEN right%=right%-1 : IF right%-left%<4 THEN left%=left%-1
+10300   IF RND(59)=1 THEN left%=left%-1
+10320   IF RND(59)=1 THEN right%=right%+1
+10340   REPEAT UNTIL INKEY(0)=-1
+10360   PRINTTAB(0,0);CHR$(11)
+10380 UNTIL FALSE
+
+RUN

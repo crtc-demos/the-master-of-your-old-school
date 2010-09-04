@@ -1,0 +1,19 @@
+10000 MODE 7
+10020 PRINTTAB(4,10);"Press <SPACE> to end"
+10040 PRINTTAB(2,18);CHR$(134);"Z   X   C   V   B   N   M   , "
+10060 PRINTTAB(2,20);CHR$(129);"0   1   2   3   4   5   6   7   "
+10080 noise$="ZXCVBNM,"
+10100 *FX11,1
+10120 *FX12,1
+10140 note$=GET$
+10160 REPEAT
+10180   Pitch=INSTR(noise$,note$)-1
+10200   SOUND 0,-10,Pitch,-1
+10220   REPEAT
+10240     N$=INKEY$(2)
+10260   UNTIL N$<>note$
+10280   SOUND &10,0,0,0
+10300   IF N$="" THEN note$=GET$ ELSE note$=N$
+10320 UNTIL note$=" "
+10340 *FX12,0
+10360 END
