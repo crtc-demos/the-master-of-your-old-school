@@ -17,7 +17,7 @@ OSCLI "SAVE L.SIN "+STR$~sinLookup+" +100"
 
 OSCLI "LOAD L.LOGS "+STR$~(lookupLog)
 
-maxLines% = 25
+maxLines% = 22
 
 ; DIM curRotList maxLines%
 
@@ -210,7 +210,7 @@ DEF PROCassemble
 
     LDY #0 : STY line
     LDA #&7C : STA lineStart+1
-    LDA #&00 : STA lineStart
+    LDA #120 : STA lineStart
     .loopLines
 
       ; LDY line
