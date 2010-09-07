@@ -487,7 +487,7 @@ end_of_sound_data:
 	lda current_pattern
 	cmp #20
 	bne use_pattern
-	lda #10
+	lda #11
 	sta current_pattern
 use_pattern
 
@@ -521,15 +521,15 @@ play_order:
 
 pattern_starts:
         .word 0x8000
-        .word 0x828d
-        .word 0x851a
-        .word 0x8761
-        .word 0xa32c
-        .word 0xa63f
-        .word 0xaba6
-        .word 0xae21
-        .word 0xb208
-        .word 0xb66b
+        .word 0x82df
+        .word 0x856c
+        .word 0x87b3
+        .word 0xa3c8
+        .word 0xa6db
+        .word 0xac42
+        .word 0xaebd
+        .word 0xb2a4
+        .word 0xb707
 
 from_irq:
 	.byte 0
