@@ -493,6 +493,7 @@ rotateCounterMaxY=P% : P%=P%+numWaves%
 			.blitloop2
 				LDA (srcLoc),Y
 				STA (plotLoc),Y
+				LDA #160 : STA (srcLoc),Y
 			INY : BNE blitloop2
 			INC srcLoc+1
 			INC plotLoc+1
@@ -506,7 +507,9 @@ rotateCounterMaxY=P% : P%=P%+numWaves%
 	#endif
 	#endif
 
+	; Now handled during blit
 	#ifdef DOUBLE_BUFFER
+		#if 0
 		; Clear the offscreen buffer
 		LDA #scrbuffer% MOD 256 : STA plotLoc
 		LDA #scrbuffer% DIV 256 : STA plotLoc+1
@@ -519,6 +522,7 @@ rotateCounterMaxY=P% : P%=P%+numWaves%
 			INY : BNE clsloop2
 			INC plotLoc+1
 		DEX : BPL clsloop1
+		#endif
 		JSR setupColors
 	#endif
 
