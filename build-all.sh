@@ -75,7 +75,7 @@ popd
 
 # Get joey's bits...
 for x in O.PHASE O.ROTA O.SIERPA O.WHIRL O.MAIN L.SIN L.LOGS; do
-  cp "joeys/bin/$x" "joeys/bin/$x.inf" "$OUTPUTDISK"
+  cp "joeys/mycode.conv/$x" "joeys/mycode.conv/$x.inf" "$OUTPUTDISK"
 done
 
 bbcim -new demodisk.ssd
