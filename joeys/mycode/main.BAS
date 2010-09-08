@@ -17,6 +17,7 @@ DEF PROCassemble
 
   FOR I%=0 TO 2 STEP 2
   P%=code
+  _resetLabelCounters
   [OPT I%
 
     #define _OSCLI &FFF7
@@ -47,13 +48,13 @@ DEF PROCassemble
     JSR &1B00   ; start phase
 
     .cont_phase
-    LDA &29 : CMP #18 : BCC cont_phase
+    LDA &29 : CMP #16 : BCC cont_phase
 
     JSR &1B72   ; stop phase
     JSR &290C   ; start whirl
 
     .cont_whirl
-    LDA &29 : CMP #21 : BCC cont_whirl
+    LDA &29 : CMP #20 : BCC cont_whirl
 
     JSR &299D   ; stop whirl
     JSR &0E12   ; page out tune data
