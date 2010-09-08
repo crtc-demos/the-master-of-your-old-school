@@ -20,8 +20,8 @@ do
 	fi
 	INFFILE="$FILE".inf
 	if [ -e "$INFFILE" ]
-	then ../bbcim/bbcim -a ../disk.ssd "$FILE"
-	else ../bbcim/bbcim -ab ../disk.ssd "$FILE"
+	then ../bbcim/bbcim -a ../disk.ssd "$FILE" || echo "Problem adding $FILE !!!"
+	else ../bbcim/bbcim -ab ../disk.ssd "$FILE" || echo "Problem adding $FILE !!!"
 	fi | dos2unix | grep -v "^adding " | grep -v "^$"
 done
 cd ..
