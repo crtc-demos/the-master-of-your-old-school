@@ -1,10 +1,6 @@
 #!/bin/sh
 
-# -I/usr/local/cc65-bbc/lib/cc65/include
-export CC65_INC=/usr/local/cc65-bbc/lib/cc65/include
-export LD65_LIB=/usr/local/cc65-bbc/lib/cc65/lib
-export LD65_OBJ=/usr/local/cc65-bbc/lib/cc65/lib
-export LD65_CFG=/usr/local/cc65-bbc/share/doc/cc65
+. ../load_cc65.shlib
 
 ## This combination does not work!
 # cc65 test.c &&

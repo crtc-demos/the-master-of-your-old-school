@@ -1,0 +1,15 @@
+cc65dir="/usr/local/cc65-bbc"
+
+if [ -d "$cc65dir" ]
+then
+
+	export PATH="$PATH:$cc65dir/bin"
+
+	# -I"$cc65dir"/lib/cc65/include
+	export CC65_INC="$cc65dir"/lib/cc65/include
+	export LD65_LIB="$cc65dir"/lib/cc65/lib
+	export LD65_OBJ="$cc65dir"/lib/cc65/lib
+	export LD65_CFG="$cc65dir"/share/doc/cc65
+
+fi
+
