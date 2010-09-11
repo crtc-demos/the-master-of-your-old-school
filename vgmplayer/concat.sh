@@ -1,7 +1,7 @@
 addr=0x8000
 while read file; do
   size=$(find "$file" -printf "%s")
-  echo "	.word $(printf "%x" $addr)"
+  echo "	.word $(printf "0x%x" $addr)"
   addr=$(( $addr + $size ))
 done < order
 
