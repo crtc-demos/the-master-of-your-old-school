@@ -26,6 +26,18 @@
 ;; part of the line can be seen.  We must detect these cases to decide which
 ;; chunk of the plot line to keep.
 
+;; When we cross an occluding line, our coincidence with the normal of the
+;; polygon can tell us which sides of the intersection were occluded or not.
+;; This could be represented as a 2d vector, angle, or complex number.
+
+#if 0
+
+;; Another trick is:  If we want to know if a point in space is inside or
+;; outside the object, we can draw a line from that point to the distance, and
+;; check if that line intersects the surface of the object.
+
+;; Is this trick also possible using the flattened data?
+
 ;; Well we could attach a (2d or 3d?) normal to each line, which can be
 ;; calculated from the normals of its 1 or 2 polygons.  OK now with the
 ;; exception of lines with normals directly into or out of the camera, when our
@@ -40,10 +52,19 @@
 
 ;; The alternative is ... ?
 
-;; One trick is:  If we want to know if a point in space is inside or outside
-;; the object, we can draw a line from that point to the distance, and check if
-;; that line intersects the surface of the object.
+#endif
 
-;; Is this trick also possible using the flattened data?
+;; Some approaches
+
+;; a) For each line, lookup the polygons possibly in front of it, check them,
+;; chop and plot the lines.  Polygons could be stored in a quadtree, or a
+;; coarse x,y,z array of linked-list (iteration would include all frontal
+;; bins).
+
+;; a) Collect the lines into a data structure, then for each polygon, chop
+;; apart or entirely remove the lines behind it.  Then plot he lines.
+
+Maybe the guy at Sundown wanted to restrict it to working on a scaline basis.
+So you take a horizontal line, and know all the lines which intersect it, but then what?
 
 
