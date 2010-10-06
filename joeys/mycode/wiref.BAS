@@ -61,8 +61,15 @@
 ;; coarse x,y,z array of linked-list (iteration would include all frontal
 ;; bins).
 
-;; a) Collect the lines into a data structure, then for each polygon, chop
+;; b) Collect the lines into a data structure, then for each polygon, chop
 ;; apart or entirely remove the lines behind it.  Then plot he lines.
+
+;; c) Go from front to back, and on the way build up a silhouette.  This could
+;; be a set of polygons, or a mask.  When plotting further lines, only those
+;; parts outside the silhouette should be plotted.
+;; (It should be pretty quick to check if a particular point is inside or outside
+;; the silhouette.  E.g. see if we intersect any of the edges of the silhouette
+;; if we go vertically upwards to infinity.)
 
 Maybe the guy at Sundown wanted to restrict it to working on a scaline basis.
 So you take a horizontal line, and know all the lines which intersect it, but then what?
