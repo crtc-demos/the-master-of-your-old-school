@@ -524,12 +524,12 @@ pattern_starts:
         .word 0x82df
         .word 0x856c
         .word 0x87b3
-        .word 0xa3c8
-        .word 0xa6db
-        .word 0xac42
-        .word 0xaebd
-        .word 0xb2a4
-        .word 0xb707
+        .word 0xa40a
+        .word 0xa71d
+        .word 0xac84
+        .word 0xaeff
+        .word 0xb306
+        .word 0xb779
 
 from_irq:
 	.byte 0
